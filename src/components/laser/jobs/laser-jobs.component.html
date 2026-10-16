@@ -1,0 +1,71 @@
+<div class="lz-screen">
+  <div class="lz-screen__canvas">
+    <lz-status-bar [back]="true" title="Trabalhos" subtitle="recentes primeiro"></lz-status-bar>
+
+    <div class="list">
+      @if (files === null) {
+        <div class="empty"><span class="loading-dots">A ler ficheiros</span></div>
+      } @else if (loadError) {
+        <div class="empty">
+          {{ loadError }}
+          <button class="lz-btn retry" (click)="load()">Tentar de novo</button>
+        </div>
+      } @else if (files.length === 0) {
+        <div class="empty">
+          Sem ficheiros G-code no OctoPrint.<br />
+          <small>Envie um trabalho a partir do RayForge.</small>
+        </div>
+      } @else {
+        @for (f of files; track f.path) {
+          <button class="file" [class.file--on]="isSelected(f)" (click)="select(f)">
+            <div class="file__thumb"><lz-icon name="frame" size="sm"></lz-icon></div>
+            <div class="file__text">
+              <div class="file__name">{{ f.display }}</div>
+              <div class="file__meta lz-mono">{{ fmtSize(f.size) }} · {{ fmtDate(f.date) }}</div>
+            </div>
+          </button>
+        }
+      }
+    </div>
+
+    <div class="detail">
+      <lz-bed-map class="map" [parsed]="selected?.parsed"></lz-bed-map>
+      @if (selected?.loading) {
+        <div class="map-msg"><span class="loading-dots">A analisar o G-code</span></div>
+      } @else if (selected?.error) {
+        <div class="map-msg map-msg--bad">{{ selected.error }}</div>
+      }
+
+      <div class="stats">
+        <div>
+          <div class="lz-kv">Tamanho (mm)</div>
+          <div class="lz-mono stat">{{ size }}</div>
+        </div>
+        <div>
+          <div class="lz-kv">Tempo</div>
+          <div class="lz-mono stat">{{ time }}</div>
+        </div>
+        <div>
+          <div class="lz-kv">Potência</div>
+          <div class="lz-mono stat">{{ power }}</div>
+        </div>
+      </div>
+
+      @if (fits === false) {
+        <div class="warn"><lz-icon name="alert" size="sm"></lz-icon>Sai fora da mesa com a origem atual</div>
+      }
+
+      <div class="actions">
+        <button class="lz-btn" [class.lz-btn--disabled]="!canFrame" (click)="frame()">
+          <lz-icon name="frame"></lz-icon>Enquadrar
+          @if (selected?.framed) {
+            <lz-icon name="check" size="sm" class="ok"></lz-icon>
+          }
+        </button>
+        <button class="lz-btn lz-btn--amber prepare" [class.lz-btn--disabled]="!selected?.parsed" (click)="prepare()">
+          Preparar →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

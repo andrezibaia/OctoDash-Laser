@@ -16,4 +16,8 @@ export abstract class SocketService {
   abstract getEventSubscribable(): Observable<PrinterEvent | PrinterNotification>;
 
   abstract getSettingsUpdatedSubscribable(): Observable<void>;
+
+  abstract getPluginMessageSubscribable(): Observable<{ plugin: string; data: unknown }>;
+
+  abstract getLogLinesSubscribable(): Observable<string[]>;
 }

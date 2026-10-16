@@ -1,0 +1,74 @@
+<div class="lz-screen">
+  <div class="lz-screen__canvas">
+    <lz-status-bar [back]="true" title="Mover"></lz-status-bar>
+
+    <div class="pad" [class.pad--disabled]="!canMove">
+      @for (b of pad; track $index) {
+        @if (b) {
+          <button
+            class="lz-btn pad__btn"
+            [class.pad__btn--diag]="b.diagonal"
+            (pointerdown)="padDown(b, $event)"
+            (pointerup)="padUp()"
+            (pointercancel)="padUp()"
+            (lostpointercapture)="padUp()">
+            <lz-icon [name]="b.icon" [size]="b.diagonal ? 'md' : 'lg'"></lz-icon>
+          </button>
+        } @else {
+          <button class="lz-btn pad__center" (click)="goToOrigin()"><lz-icon name="pin"></lz-icon>ir à origem</button>
+        }
+      }
+    </div>
+
+    <div class="steps">
+      <div class="lz-kv steps__label">{{ continuous ? 'Contínuo — move enquanto premir' : 'Passo (mm)' }}</div>
+      <div class="lz-seg">
+        @for (s of steps; track s) {
+          <button class="lz-seg__item" [class.lz-seg__item--on]="step === s" (click)="setStep(s)">{{ s }}</button>
+        }
+        <button class="lz-seg__item lz-seg__item--word" [class.lz-seg__item--on]="continuous" (click)="setStep(0)">
+          ∞
+        </button>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="side__top">
+        <lz-bed-map class="mini-map" [showLabels]="false"></lz-bed-map>
+        <div class="lz-panel dro">
+          <div class="lz-dro">
+            <span class="lz-dro__axis">X</span>
+            <span class="lz-dro__value" [class.lz-dro__value--unknown]="!status?.wpos">{{ fmt(status?.wpos?.x) }}</span>
+            <span class="lz-dro__axis">Y</span>
+            <span class="lz-dro__value" [class.lz-dro__value--unknown]="!status?.wpos">{{ fmt(status?.wpos?.y) }}</span>
+          </div>
+          <div class="lz-kv dro__speed">velocidade {{ feedMmS }} mm/s</div>
+        </div>
+      </div>
+      <div class="tiles">
+        <button class="lz-btn lz-btn--tile" [class.lz-btn--disabled]="!canMove" (click)="setOrigin()">
+          <lz-icon name="target"></lz-icon>Origem aqui<small>G10 L20 X0 Y0</small>
+        </button>
+        <button
+          class="lz-btn lz-btn--tile"
+          [class.lz-btn--disabled]="!(canMove || status?.state === LaserState.alarm)"
+          (click)="home()">
+          <lz-icon name="home"></lz-icon>Home<small>$H</small>
+        </button>
+        <button class="lz-btn lz-btn--tile" (click)="unlock()">
+          <lz-icon name="unlock"></lz-icon>Desbloquear<small>$X</small>
+        </button>
+        <button
+          class="lz-btn lz-btn--tile lz-btn--outline-amber fire"
+          [class.lz-btn--disabled]="!canMove"
+          lzHold
+          [lzHoldMs]="700"
+          [lzHoldDisabled]="!canMove"
+          (lzHold)="testFire()">
+          <span class="fire__fill"></span>
+          <lz-icon name="bolt"></lz-icon>Disparo de teste<small>manter premido · {{ testFireLabel }}</small>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

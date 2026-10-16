@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 
 import { AppService } from '../services/app.service';
 import { ConfigService } from '../services/config.service';
+import { LaserNavigatorService } from '../services/laser/laser-navigator.service';
 import { SocketService } from '../services/socket/socket.service';
 
 @Component({
@@ -39,6 +40,7 @@ export class AppComponent implements OnInit {
     private configService: ConfigService,
     private socketService: SocketService,
     private router: Router,
+    private laserNavigator: LaserNavigatorService,
   ) {}
 
   public ngOnInit(): void {
@@ -85,6 +87,7 @@ export class AppComponent implements OnInit {
       .then(() => {
         this.router.navigate(['/main-screen']);
         this.initialized = true;
+        this.laserNavigator.start();
       })
       .finally(() => clearTimeout(showPrinterConnectedTimeout));
   }

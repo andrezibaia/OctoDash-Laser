@@ -22,7 +22,7 @@ export class AppService {
   };
 
   public updateAvailable = false;
-  public dev = !!process.env.APP_DEV;
+  public dev = typeof process !== 'undefined' && !!process.env?.APP_DEV;
 
   public constructor(
     private configService: ConfigService,
@@ -37,6 +37,9 @@ export class AppService {
     // list of all error following an upgrade
     /* eslint-disable @typescript-eslint/no-explicit-any */
     this.updateError = {
+      "/ must have required property 'laser'": config => {
+        config.laser = _.cloneDeep(defaultConfig.laser);
+      },
       '/octodash must NOT have additional properties': config => {
         if ('showNotificationCenterIcon' in (config.octodash as any)) {
           config.octodash.showActionCenterIcon = (config.octodash as any).showNotificationCenterIcon;

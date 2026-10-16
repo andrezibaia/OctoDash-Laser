@@ -1,0 +1,75 @@
+<div class="lz-screen">
+  <div class="lz-screen__canvas">
+    <lz-status-bar [title]="job?.file || 'Trabalho'" [back]="!active" [subtitle]="headline"></lz-status-bar>
+
+    <div class="view">
+      @if (view === 'map') {
+        <lz-bed-map
+          class="map"
+          [parsed]="parsed"
+          [showProgress]="true"
+          [progressIndex]="progressIndex"
+          [headFromProgress]="active"
+          [showLabels]="false"></lz-bed-map>
+      } @else {
+        <lz-camera class="map" [url]="cameraUrl"></lz-camera>
+      }
+    </div>
+    <div class="view-actions">
+      @if (cameraEnabled) {
+        <button class="lz-btn" (click)="setView(view === 'map' ? 'camera' : 'map')">
+          <lz-icon [name]="view === 'map' ? 'camera' : 'map'" size="sm"></lz-icon
+          >{{ view === 'map' ? 'Câmara' : 'Mapa' }}
+        </button>
+      }
+    </div>
+
+    <div class="info">
+      <div class="info__top">
+        <div class="pct lz-mono">{{ percent }}<span>%</span></div>
+        <div class="t">
+          <div class="lz-kv">Falta</div>
+          <div class="lz-mono t__v">{{ active ? fmtTime(timeLeft) : '—' }}</div>
+        </div>
+        <div class="t">
+          <div class="lz-kv">Decorrido</div>
+          <div class="lz-mono t__v t__v--muted">{{ fmtTime(job?.printTimeSeconds) }}</div>
+        </div>
+      </div>
+      <div class="lz-progress">
+        <span class="lz-progress__fill" [style.width.%]="percent"></span>
+      </div>
+      <div class="lz-kv sub">
+        @if (endsAt) {
+          Termina ≈ {{ endsAt }} ·
+        }
+        {{ fmtSize(job?.filepos) || '0 B' }} de {{ fmtSize(job?.fileSize) }}
+      </div>
+
+      @if (status?.state === LaserState.door) {
+        <div class="alert"><lz-icon name="door" size="sm"></lz-icon>Porta aberta — o trabalho está suspenso</div>
+      } @else if (status?.state === LaserState.alarm) {
+        <div class="alert"><lz-icon name="alert" size="sm"></lz-icon>Alarme GRBL — trabalho interrompido</div>
+      }
+    </div>
+
+    <div class="controls">
+      @if (active) {
+        <button class="lz-btn pause" [class.lz-btn--disabled]="pausing" (click)="togglePause()">
+          @if (pausing) {
+            <span class="pausing">A pausar…<small>termina o movimento atual</small></span>
+          } @else {
+            <lz-icon [name]="paused ? 'play' : 'pause'" size="lg"></lz-icon>{{ paused ? 'Retomar' : 'Pausa' }}
+          }
+        </button>
+        <button class="lz-btn lz-btn--outline-red stop" lzHold [lzHoldMs]="1000" (lzHold)="stop()">
+          <span class="stop__fill"></span>
+          <lz-icon name="stop"></lz-icon>Parar<small>manter 1 s</small>
+        </button>
+      } @else {
+        <button class="lz-btn lz-btn--amber pause" (click)="goHome()"><lz-icon name="home"></lz-icon>Início</button>
+        <button class="lz-btn stop" (click)="again()"><lz-icon name="folder"></lz-icon>Trabalhos</button>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+$u: var(--u);
+
+@function u($n) {
+  @return calc(#{$n} * #{$u});
+}
+
+:host {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 5;
+}
+
+.bar {
+  height: u(44);
+  display: flex;
+  align-items: center;
+  gap: u(8);
+  padding: 0 u(10);
+  background: var(--lz-s1);
+  border-bottom: u(1) solid var(--lz-line);
+
+  &--overlay {
+    background: rgb(17 19 21 / 88%);
+  }
+}
+
+.back {
+  width: u(52);
+  height: u(36);
+  border-radius: u(8);
+  background: var(--lz-s2);
+  display: grid;
+  place-items: center;
+  color: var(--lz-ink);
+  border: 0;
+
+  &:active {
+    background: var(--lz-s3);
+  }
+}
+
+.title {
+  font: 600 u(18) / 1 var(--lz-cond);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: u(420);
+
+  &__sub {
+    color: var(--lz-muted);
+    font-weight: 500;
+    font-size: u(15);
+  }
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: u(8);
+  height: u(30);
+  padding: 0 u(12);
+  border-radius: u(15);
+  font: 700 u(15) / 1 var(--lz-cond);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-left: u(4);
+
+  i {
+    width: u(9);
+    height: u(9);
+    border-radius: 50%;
+    background: currentcolor;
+    box-shadow: 0 0 u(8) currentcolor;
+  }
+
+  &--lead {
+    margin-left: u(2);
+  }
+
+  &--green {
+    background: rgb(76 194 126 / 14%);
+    color: var(--lz-green);
+  }
+
+  &--amber {
+    background: rgb(255 173 51 / 16%);
+    color: var(--lz-amber);
+  }
+
+  &--red {
+    background: rgb(255 74 61 / 18%);
+    color: var(--lz-red);
+  }
+
+  &--cyan {
+    background: rgb(98 198 242 / 15%);
+    color: var(--lz-cyan);
+  }
+
+  &--grey {
+    background: var(--lz-s2);
+    color: var(--lz-muted);
+  }
+}
+
+.right {
+  display: flex;
+  gap: u(6);
+  margin-left: auto;
+  align-items: center;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: u(5);
+  height: u(30);
+  padding: 0 u(9);
+  border-radius: u(6);
+  background: var(--lz-s2);
+  color: var(--lz-muted);
+  font: 500 u(14) / 1 var(--lz-font);
+
+  &--on {
+    color: var(--lz-ink);
+
+    lz-icon {
+      color: var(--lz-green);
+    }
+  }
+}
+
+.clock {
+  font-size: u(15);
+  color: var(--lz-muted);
+  margin-left: u(6);
+  padding-left: u(10);
+  border-left: u(1) solid var(--lz-line);
+  height: u(24);
+  display: flex;
+  align-items: center;
+}

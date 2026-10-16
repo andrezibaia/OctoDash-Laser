@@ -3,7 +3,7 @@ import { Injectable, NgZone } from '@angular/core';
 import * as _ from 'lodash-es';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 
-import { ConfigSchema as Config, CustomAction, URLSplit } from '../model';
+import { ConfigSchema as Config, CustomAction, Laser, URLSplit } from '../model';
 import { ElectronService } from './electron.service';
 import { NotificationService } from './notification.service';
 
@@ -141,6 +141,10 @@ export class ConfigService {
 
   public getPrinterName(): string {
     return this.config.printer.name;
+  }
+
+  public getLaser(): Laser {
+    return this.config.laser;
   }
 
   public getCustomActions(): CustomAction[] {

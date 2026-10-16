@@ -1,0 +1,77 @@
+@function u($n) {
+  @return calc(#{$n} * var(--u));
+}
+
+:host {
+  display: block;
+}
+
+.track {
+  position: relative;
+  height: u(72);
+  border-radius: u(36);
+  background: var(--lz-s1);
+  border: u(1.5) solid var(--lz-amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  overflow: hidden;
+
+  &--warn {
+    border-color: var(--lz-red);
+
+    .label {
+      color: var(--lz-red);
+    }
+
+    .knob {
+      background: var(--lz-red);
+      color: #fff;
+    }
+
+    .fill {
+      background: rgb(255 74 61 / 14%);
+    }
+  }
+
+  &--disabled {
+    opacity: 0.4;
+  }
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: rgb(255 173 51 / 14%);
+  border-radius: u(36);
+}
+
+.label {
+  position: relative;
+  font: 600 u(18) var(--lz-cond);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lz-amber);
+  pointer-events: none;
+}
+
+.knob {
+  position: absolute;
+  left: u(5);
+  top: u(5);
+  width: u(60);
+  height: u(60);
+  border-radius: 50%;
+  background: var(--lz-amber);
+  color: var(--lz-amber-ink);
+  display: grid;
+  place-items: center;
+  transition: transform 250ms ease;
+
+  &--dragging {
+    transition: none;
+  }
+}

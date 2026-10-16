@@ -8,6 +8,10 @@ export interface JobStatus {
   timeLeft?: Duration;
   estimatedPrintTime?: Duration;
   estimatedEndTime?: string;
+  filepos?: number;
+  fileSize?: number;
+  printTimeSeconds?: number;
+  printTimeLeftSeconds?: number;
 }
 
 export interface Duration {

@@ -1,6 +1,6 @@
 {
-  "name": "octodash",
-  "description": "OctoDash is a simple, but beautiful dashboard for Octoprint.",
+  "name": "octodash-laser",
+  "description": "OctoDash-Laser: touchscreen dashboard for GRBL laser engravers on OctoPrint (fork of OctoDash).",
   "version": "2.8.0",
   "license": "Apache 2.0",
   "homepage": "https://github.com/UnchartedBull/OctoDash",
@@ -18,8 +18,8 @@
     "npm": "~11.13.0"
   },
   "build": {
-    "appId": "octodash",
-    "productName": "OctoDash",
+    "appId": "octodash-laser",
+    "productName": "OctoDash-Laser",
     "directories": {
       "output": "package"
     },
@@ -55,7 +55,9 @@
         }
       ],
       "category": "Utility",
-      "icon": "./src/assets/icon/icon.png"
+      "icon": "./src/assets/icon/icon.png",
+      "executableName": "octodash-laser",
+      "synopsis": "Touchscreen dashboard for GRBL lasers on OctoPrint"
     }
   },
   "scripts": {

@@ -1,0 +1,52 @@
+<div class="lz-screen">
+  <div class="lz-screen__canvas">
+    <lz-status-bar [back]="true" backTo="/jobs" title="Antes de começar" [subtitle]="selected?.file?.display">
+    </lz-status-bar>
+
+    <div class="checks">
+      @for (row of rows; track row.id) {
+        <div class="chk chk--{{ row.state }}" [class.chk--manual]="row.manual" (click)="toggleManual(row)">
+          <div class="chk__st">
+            @switch (row.state) {
+              @case ('ok') {
+                <lz-icon name="check" size="sm"></lz-icon>
+              }
+              @case ('bad') {
+                <lz-icon name="x" size="sm"></lz-icon>
+              }
+              @case ('optional') {
+                <lz-icon name="frame" size="sm"></lz-icon>
+              }
+              @default {
+                <lz-icon name="alert" size="sm"></lz-icon>
+              }
+            }
+          </div>
+          <div class="chk__t">
+            {{ row.title }}<small>{{ row.detail }}</small>
+          </div>
+          @if (row.action) {
+            <button
+              class="lz-btn chk__btn"
+              [class.lz-btn--disabled]="row.action.disabled"
+              (click)="$event.stopPropagation(); row.action.disabled || row.action.run()">
+              {{ row.action.label }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="preview">
+      <lz-bed-map class="map" [parsed]="selected?.parsed" [showLabels]="false"></lz-bed-map>
+      <div class="summary lz-mono">{{ summary }}</div>
+    </div>
+
+    <lz-slide-confirm
+      class="slide"
+      [label]="slideLabel"
+      [tone]="warnings ? 'warn' : 'normal'"
+      [disabled]="starting"
+      (confirmed)="start()"></lz-slide-confirm>
+  </div>
+</div>

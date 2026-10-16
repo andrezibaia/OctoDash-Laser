@@ -22,4 +22,8 @@ export enum PrinterState {
   connecting,
   reconnecting,
   socketDead,
+  // OctoPrint transitional states (added by OctoDash-Laser; previously mapped to undefined)
+  starting,
+  resuming,
+  finishing,
 }

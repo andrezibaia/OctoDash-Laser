@@ -28,7 +28,7 @@
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["octoprint", "printer", "filament", "plugins", "octodash"],
+  "required": ["octoprint", "printer", "filament", "plugins", "octodash", "laser"],
   "properties": {
     "octoprint": {
       "$id": "#/octoprint",
@@ -393,45 +393,10 @@
           "type": "array",
           "default": [
             {
-              "icon": "house",
-              "command": "G28",
-              "color": "#dcdde1",
-              "confirm": false,
-              "exit": true
-            },
-            {
-              "icon": "ruler-vertical",
-              "command": "G29",
-              "color": "#4bae50",
-              "confirm": false,
-              "exit": true
-            },
-            {
-              "icon": "fire-flame-curved",
-              "command": "M140 S50; M104 S185",
-              "color": "#e1b12c",
-              "confirm": false,
-              "exit": true
-            },
-            {
-              "icon": "snowflake",
-              "command": "M140 S0; M104 S0",
-              "color": "#0097e6",
-              "confirm": false,
-              "exit": true
-            },
-            {
-              "icon": "rotate-right",
-              "command": "[!RELOAD]",
+              "icon": "ban",
+              "command": "M5",
               "color": "#7f8fa6",
-              "confirm": true,
-              "exit": false
-            },
-            {
-              "icon": "power-off",
-              "command": "[!SHUTDOWN]",
-              "color": "#e84118",
-              "confirm": true,
+              "confirm": false,
               "exit": false
             }
           ],
@@ -517,7 +482,7 @@
         },
         "showActionCenterIcon": {
           "type": "boolean",
-          "default": true
+          "default": false
         },
         "defaultDirectory": {
           "type": "string",
@@ -526,6 +491,122 @@
         }
       },
       "additionalProperties": false
+    },
+    "laser": {
+      "$id": "#/laser",
+      "type": "object",
+      "required": ["bed", "jog", "testFire", "maxPower", "rapidFeed", "camera", "checklist"],
+      "additionalProperties": false,
+      "properties": {
+        "bed": {
+          "type": "object",
+          "required": ["width", "height", "xMin", "yMin", "yAxisUp"],
+          "additionalProperties": false,
+          "properties": {
+            "width": {
+              "type": "number",
+              "default": 300,
+              "minimum": 1
+            },
+            "height": {
+              "type": "number",
+              "default": 200,
+              "minimum": 1
+            },
+            "xMin": {
+              "type": "number",
+              "default": 0
+            },
+            "yMin": {
+              "type": "number",
+              "default": 0
+            },
+            "yAxisUp": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "jog": {
+          "type": "object",
+          "required": ["feed", "steps", "defaultStep", "continuousMax"],
+          "additionalProperties": false,
+          "properties": {
+            "feed": {
+              "type": "number",
+              "default": 600,
+              "minimum": 1
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "default": [0.1, 1, 10, 50]
+            },
+            "defaultStep": {
+              "type": "number",
+              "default": 10
+            },
+            "continuousMax": {
+              "type": "number",
+              "default": 300,
+              "minimum": 1
+            }
+          }
+        },
+        "testFire": {
+          "type": "object",
+          "required": ["power", "durationMs"],
+          "additionalProperties": false,
+          "properties": {
+            "power": {
+              "type": "number",
+              "default": 10,
+              "minimum": 0,
+              "maximum": 100
+            },
+            "durationMs": {
+              "type": "number",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 2000
+            }
+          }
+        },
+        "maxPower": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 1
+        },
+        "rapidFeed": {
+          "type": "number",
+          "default": 6000,
+          "minimum": 1
+        },
+        "camera": {
+          "type": "object",
+          "required": ["enabled", "url"],
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "url": {
+              "type": "string",
+              "default": "http://localhost:1984/api/stream.mjpeg?src=k40"
+            }
+          }
+        },
+        "checklist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["Tampa fechada", "Água a circular", "Ar comprimido ligado"]
+        }
+      }
     }
   },
   "additionalProperties": false

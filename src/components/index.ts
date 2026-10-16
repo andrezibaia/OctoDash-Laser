@@ -9,6 +9,19 @@ import { HeatNozzleComponent } from './filament/heat-nozzle/heat-nozzle.componen
 import { MoveFilamentComponent } from './filament/move-filament/move-filament.component';
 import { PurgeFilamentComponent } from './filament/purge-filament/purge-filament.component';
 import { FilesComponent } from './files/files.component';
+import { LaserCameraComponent } from './laser/camera/laser-camera.component';
+import { LaserHomeComponent } from './laser/home/laser-home.component';
+import { LaserJobsComponent } from './laser/jobs/laser-jobs.component';
+import { LaserJogComponent } from './laser/jog/laser-jog.component';
+import { LaserMoreComponent } from './laser/more/laser-more.component';
+import { LaserPrepareComponent } from './laser/prepare/laser-prepare.component';
+import { LaserRunningComponent } from './laser/running/laser-running.component';
+import { LzBedMapComponent } from './laser/shared/lz-bed-map.component';
+import { LzCameraComponent } from './laser/shared/lz-camera.component';
+import { LzHoldDirective } from './laser/shared/lz-hold.directive';
+import { LzIconComponent } from './laser/shared/lz-icon.component';
+import { LzSlideConfirmComponent } from './laser/shared/lz-slide-confirm.component';
+import { LzStatusBarComponent } from './laser/shared/lz-status-bar.component';
 import { BottomBarComponent } from './main-screen/bottom-bar/bottom-bar.component';
 import { HeightProgressComponent } from './main-screen/job-status/height-progress/height-progress.component';
 import { JobStatusComponent } from './main-screen/job-status/job-status.component';
@@ -80,4 +93,17 @@ export default [
   BedQuickControlComponent,
   FanQuickControlComponent,
   QuickControlModalComponent,
+  LaserHomeComponent,
+  LaserJogComponent,
+  LaserJobsComponent,
+  LaserPrepareComponent,
+  LaserRunningComponent,
+  LaserCameraComponent,
+  LaserMoreComponent,
+  LzIconComponent,
+  LzHoldDirective,
+  LzStatusBarComponent,
+  LzBedMapComponent,
+  LzSlideConfirmComponent,
+  LzCameraComponent,
 ];

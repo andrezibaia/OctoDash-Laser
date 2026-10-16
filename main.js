@@ -48,7 +48,7 @@ function createWindow() {
     width: dev ? 1100 : mainScreen.size.width,
     height: dev ? 600 : mainScreen.size.height,
     frame: dev,
-    backgroundColor: '#353b48',
+    backgroundColor: '#111315',
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,

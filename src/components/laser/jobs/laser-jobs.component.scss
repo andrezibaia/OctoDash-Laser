@@ -1,0 +1,147 @@
+@function u($n) {
+  @return calc(#{$n} * var(--u));
+}
+
+.list {
+  position: absolute;
+  left: u(8);
+  top: u(52);
+  width: u(376);
+  bottom: u(8);
+  display: flex;
+  flex-direction: column;
+  gap: u(4);
+  overflow-y: auto;
+  padding-right: u(4);
+}
+
+.empty {
+  margin: auto;
+  text-align: center;
+  color: var(--lz-muted);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: u(12);
+
+  small {
+    color: var(--lz-dim);
+  }
+}
+
+.retry {
+  height: u(48);
+  padding: 0 u(20);
+}
+
+.file {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: u(12);
+  height: u(66);
+  padding: 0 u(12);
+  border-radius: u(10);
+  background: transparent;
+  border: 0;
+  color: var(--lz-ink);
+  text-align: left;
+
+  &--on {
+    background: var(--lz-s2);
+    box-shadow: inset u(3) 0 0 var(--lz-amber);
+  }
+
+  &__thumb {
+    width: u(48);
+    height: u(48);
+    border-radius: u(6);
+    background: var(--lz-s1);
+    border: u(1) solid var(--lz-line);
+    display: grid;
+    place-items: center;
+    flex: none;
+    color: var(--lz-amber);
+  }
+
+  &__text {
+    min-width: 0;
+  }
+
+  &__name {
+    font: 600 u(16) var(--lz-font);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__meta {
+    font-size: u(13);
+    color: var(--lz-muted);
+  }
+}
+
+.detail {
+  position: absolute;
+  inset: u(56) u(12) u(12) u(392);
+  display: flex;
+  flex-direction: column;
+  gap: u(10);
+}
+
+.map {
+  height: u(222);
+  flex: none;
+}
+
+.map-msg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: u(90);
+  text-align: center;
+  color: var(--lz-muted);
+
+  &--bad {
+    color: var(--lz-red);
+  }
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: u(8);
+}
+
+.stat {
+  font-size: u(18);
+}
+
+.warn {
+  display: flex;
+  align-items: center;
+  gap: u(8);
+  color: var(--lz-red);
+  font-weight: 600;
+  font-size: u(14);
+}
+
+.actions {
+  display: flex;
+  gap: u(10);
+  margin-top: auto;
+
+  .lz-btn {
+    flex: 1;
+    height: u(64);
+  }
+
+  .prepare {
+    flex: 1.3;
+  }
+
+  .ok {
+    color: var(--lz-green);
+  }
+}

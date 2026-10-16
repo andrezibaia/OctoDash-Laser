@@ -39,6 +39,8 @@ export class OctoPrintSocketService implements SocketService {
   private eventSubject: Subject<PrinterEvent>;
   private statusTextSubject: Subject<string>;
   private settingsUpdatedSubject = new Subject<void>();
+  private pluginMessageSubject = new Subject<{ plugin: string; data: unknown }>();
+  private logLinesSubject = new Subject<string[]>();
 
   private printerStatus: PrinterStatus;
   private jobStatus: JobStatus;
@@ -151,6 +153,7 @@ export class OctoPrintSocketService implements SocketService {
   }
 
   private handlePluginMessage(pluginMessage: OctoprintPluginMessage) {
+    this.pluginMessageSubject.next({ plugin: pluginMessage.plugin.plugin, data: pluginMessage.plugin.data });
     const plugins = [
       {
         check: (plugin: string) =>
@@ -183,6 +186,10 @@ export class OctoPrintSocketService implements SocketService {
         }, 30000);
         if (Object.hasOwnProperty.bind(message)('current')) {
           this.extractPrinterStatus(message as OctoprintSocketCurrent);
+          const logs = (message as OctoprintSocketCurrent).current?.logs;
+          if (logs?.length) {
+            this.logLinesSubject.next(logs);
+          }
           this.extractJobStatus(message as OctoprintSocketCurrent);
         } else if (Object.hasOwnProperty.bind(message)('event')) {
           this.extractPrinterEvent(message as OctoprintSocketEvent);
@@ -295,6 +302,10 @@ export class OctoPrintSocketService implements SocketService {
     this.jobStatus.file = file;
     this.jobStatus.fullPath = '/' + message.current.job?.file?.origin + '/' + message.current.job?.file?.path;
     this.jobStatus.progress = Math.round(message.current.progress?.completion);
+    this.jobStatus.filepos = message.current.progress?.filepos ?? null;
+    this.jobStatus.fileSize = message.current.job?.file?.size ?? null;
+    this.jobStatus.printTimeSeconds = message.current.progress?.printTime ?? null;
+    this.jobStatus.printTimeLeftSeconds = message.current.progress?.printTimeLeft ?? null;
 
     this.extractJobStatusTime(message);
 
@@ -449,5 +460,13 @@ export class OctoPrintSocketService implements SocketService {
 
   public getSettingsUpdatedSubscribable(): Observable<void> {
     return this.settingsUpdatedSubject.asObservable();
+  }
+
+  public getPluginMessageSubscribable(): Observable<{ plugin: string; data: unknown }> {
+    return this.pluginMessageSubject.asObservable();
+  }
+
+  public getLogLinesSubscribable(): Observable<string[]> {
+    return this.logLinesSubject.asObservable();
   }
 }
