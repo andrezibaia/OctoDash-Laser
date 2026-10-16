@@ -1,5 +1,9 @@
 # Changelog
 
+## OctoDash-Laser v2.8.4
+
+- New logo (the OctoDash ring cut by a laser), app icon and favicon; logo on the splash screen and in Settings › About
+
 ## OctoDash-Laser v2.8.3
 
 - Settings: "Invert arrows" now applies to the jog pad; removed options that had no effect on the laser screens

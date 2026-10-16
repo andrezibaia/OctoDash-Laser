@@ -270,7 +270,18 @@
 }
 
 .about {
-  padding: u(14) 0 u(4);
+  padding: u(14) 0 u(4) u(110);
+  position: relative;
+  min-height: u(110);
+
+  &__logo {
+    position: absolute;
+    left: 0;
+    top: u(12);
+    width: u(92);
+    height: u(100);
+    object-fit: contain;
+  }
 
   &__name {
     font: 700 u(26) var(--lz-cond);

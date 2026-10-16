@@ -1,8 +1,13 @@
 <p align="center">
-  <img src="./screenshots/02-home-ready.png" width="640" alt="OctoDash-Laser main screen">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./.github/assets/logo-on-dark.svg">
+    <img src="./.github/assets/logo-on-light.svg" width="260" alt="OctoDash-Laser">
+  </picture>
 </p>
 
-<h1 align="center">OctoDash-Laser</h1>
+<p align="center">
+  <img src="./screenshots/02-home-ready.png" width="640" alt="OctoDash-Laser main screen">
+</p>
 
 <p align="center">
   <b>A touchscreen dashboard for GRBL laser engravers running on OctoPrint.</b><br>
