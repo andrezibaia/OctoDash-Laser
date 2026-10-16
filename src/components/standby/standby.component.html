@@ -1,19 +1,17 @@
-<div class="standby">
-  <div (click)="reconnect()" class="standby__main-window">
-    <img src="assets/icon/icon-main.svg" class="standby__icon" />
+<div class="lz-screen" (click)="reconnect()">
+  <div class="lz-screen__canvas standby-lz">
+    <div class="standby-lz__dot" [class.standby-lz__dot--busy]="connecting"></div>
     @if (!connecting) {
-      <span class="standby__text-big" i18n="@@octoprint-sleeping">Shhh! OctoDash is sleeping.</span>
-      <span class="standby__text-small" i18n="@@octoprint-sleeping-message">Tap the screen to wake me up again.</span>
+      <div class="standby-lz__big">{{ 'Em repouso' | lzt }}</div>
+      <div class="standby-lz__small">{{ 'Toque no ecrã para acordar.' | lzt }}</div>
     }
     @if (connecting) {
-      <span class="standby__text-big loading-dots" i18n="@@connecting">connecting</span>
+      <div class="standby-lz__big loading-dots">{{ 'A ligar' | lzt }}</div>
       @if (showConnectionError) {
-        <span class="standby__text-small" i18n="@@connection-failed">
-          Connection can't be established. Press screen to try again.
-        </span>
+        <div class="standby-lz__small">
+          {{ 'Não foi possível ligar ao OctoPrint. Toque para tentar de novo.' | lzt }}
+        </div>
       }
     }
   </div>
 </div>
-
-<app-settings-icon></app-settings-icon>

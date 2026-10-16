@@ -15,7 +15,7 @@ import { ElectronService } from '../../services/electron.service';
 })
 export class ConfigSetupComponent implements OnInit, OnDestroy {
   public page = 0;
-  public totalPages = 6;
+  public totalPages = 4;
 
   public configUpdate: boolean;
   public config: Config;

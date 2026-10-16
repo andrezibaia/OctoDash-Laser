@@ -59,3 +59,45 @@
     }
   }
 }
+
+// OctoDash-Laser standby
+.standby-lz {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(10 * var(--u));
+
+  &__dot {
+    width: calc(14 * var(--u));
+    height: calc(14 * var(--u));
+    border-radius: 50%;
+    background: var(--lz-dim);
+    margin-bottom: calc(8 * var(--u));
+
+    &--busy {
+      background: var(--lz-amber);
+      animation: lz-pulse 1.2s ease-in-out infinite;
+    }
+  }
+
+  &__big {
+    font: 700 calc(34 * var(--u)) var(--lz-cond);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--lz-ink);
+  }
+
+  &__small {
+    font: 400 calc(16 * var(--u)) var(--lz-font);
+    color: var(--lz-muted);
+    max-width: calc(480 * var(--u));
+    text-align: center;
+  }
+}
+
+@keyframes lz-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}

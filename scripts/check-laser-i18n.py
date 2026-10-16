@@ -14,9 +14,10 @@ keys = set()
 for m in re.finditer(r"^\s+(?:'((?:[^'\\]|\\.)*)'|([A-Za-zÀ-ÿ.]+)):", en_block, re.M):
     keys.add((m.group(1) or m.group(2)).replace("\\'", "'"))
 
-IDENTICAL = {"Home", "Home ($H)"}  # same in both languages
+IDENTICAL = {"Home", "Home ($H)", "Laser"}  # same in both languages
 files = [p for d in ("components/laser", "services/laser") for p in (SRC / d).rglob("*") if p.suffix in (".ts", ".html")]
 files = [p for p in files if p.name != "laser-i18n.ts"]
+files += [SRC / "components/standby/standby.component.html", SRC / "components/notification/notification.component.html"]
 
 used = set()
 lit = r"'((?:[^'\\]|\\.)*)'"
@@ -47,6 +48,10 @@ for p in files:
         used.update(strings(balanced(t, m.end() - 1)))
     for m in re.finditer(r"(\((?:[^()]|\([^()]*\))*\)|" + lit + r")\s*\|\s*lzt", t):
         used.update(strings(m.group(1)))
+# labels passed through template contexts / section tables, translated with `label | lzt`
+settings = SRC / "components/laser/settings"
+for f in settings.glob("*"):
+    used.update(re.findall(r"(?:label|hint): '([^']+)'", f.read_text()))
 # strings translated indirectly (tables passed to tr at render time)
 for f, pat in (
     ("components/laser/shared/lz-alarms.ts", r"(?:title|help): '([^']+)'"),
@@ -79,7 +84,7 @@ for p in files:
     stripped = re.sub(r"<[^>]*>", "\n", stripped, flags=re.S)
     for line in stripped.splitlines():
         line = line.strip()
-        if line and re.search(r"[A-Za-zÀ-ÿ]{3,}", line) and pt_words.search(line) and not line.startswith("@"):
+        if line and re.search(r"[A-Za-zÀ-ÿ]{3,}", line) and pt_words.search(line) and not line.startswith("@") and line != "Português":
             leftovers.append(f"{p.relative_to(SRC)}: {line}")
 
 print(f"chaves usadas: {len(used)} · no dicionário: {len(keys)}")

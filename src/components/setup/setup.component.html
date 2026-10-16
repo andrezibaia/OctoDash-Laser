@@ -35,13 +35,14 @@
       [(useTouchscreen)]="config.octodash.touchscreen"></app-config-setup-personalization>
   }
 
-  @if (page === 4) {
+  <!-- OctoDash-Laser: extruder and printer-plugin pages removed -->
+  @if (false) {
     <app-config-setup-extruder-information
       [(feedLength)]="config.filament.feedLength"
       [(feedSpeed)]="config.filament.feedSpeed"></app-config-setup-extruder-information>
   }
 
-  @if (page === 5) {
+  @if (false) {
     <app-config-setup-plugins
       [(companionPlugin)]="config.plugins.companion.enabled"
       [(displayLayerProgressPlugin)]="config.plugins.displayLayerProgress.enabled"
@@ -59,7 +60,7 @@
       [(wemoPlugin)]="config.plugins.wemo.enabled"></app-config-setup-plugins>
   }
 
-  @if (page === 6) {
+  @if (page === 4) {
     <div>
       <span class="setup__text" i18n="@@checking">Great! I'll check everything.</span>
       <div class="setup__validation-check-wrapper">

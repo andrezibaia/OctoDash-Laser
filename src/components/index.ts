@@ -16,6 +16,7 @@ import { LaserJogComponent } from './laser/jog/laser-jog.component';
 import { LaserMoreComponent } from './laser/more/laser-more.component';
 import { LaserPrepareComponent } from './laser/prepare/laser-prepare.component';
 import { LaserRunningComponent } from './laser/running/laser-running.component';
+import { LaserSettingsComponent } from './laser/settings/laser-settings.component';
 import { LzBedMapComponent } from './laser/shared/lz-bed-map.component';
 import { LzCameraComponent } from './laser/shared/lz-camera.component';
 import { LzHoldDirective } from './laser/shared/lz-hold.directive';
@@ -108,4 +109,5 @@ export default [
   LzSlideConfirmComponent,
   LzCameraComponent,
   LzTranslatePipe,
+  LaserSettingsComponent,
 ];

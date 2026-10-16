@@ -8,6 +8,8 @@ import { ConfigService } from './config.service';
 import { ElectronService } from './electron.service';
 import { NotificationService } from './notification.service';
 
+const LASER_DISABLE_UPDATE_CHECK = true;
+
 @Injectable()
 export class AppService {
   private updateError: Record<string, (config: Config) => void>;
@@ -73,8 +75,9 @@ export class AppService {
   }
 
   private checkUpdate(): void {
-    if (this.dev) {
-      // Disable updates in developer mode
+    // OctoDash-Laser is installed manually (.deb). Checking UnchartedBull/OctoDash releases would
+    // always report "update available" and the in-app updater would install the 3D-printer OctoDash.
+    if (this.dev || LASER_DISABLE_UPDATE_CHECK) {
       return;
     }
 

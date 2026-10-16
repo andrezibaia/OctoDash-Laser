@@ -87,3 +87,81 @@
     }
   }
 }
+
+// OctoDash-Laser look (800×480 design units)
+.notification {
+  font-family: var(--lz-font);
+  color: var(--lz-ink);
+  background-color: var(--lz-s1);
+  border: calc(1 * var(--u)) solid var(--lz-line);
+  border-left-width: calc(5 * var(--u));
+  border-radius: calc(10 * var(--u));
+  box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) rgb(0 0 0 / 60%);
+  width: calc(560 * var(--u));
+  left: calc(50vw - 280 * var(--u));
+
+  &__show {
+    top: calc(64 * var(--u));
+  }
+
+  &__heading {
+    text-align: left;
+    font: 700 calc(20 * var(--u)) / 1.2 var(--lz-font);
+    margin: 0;
+    padding: calc(16 * var(--u)) calc(18 * var(--u)) 0;
+  }
+
+  &__text {
+    text-align: left;
+    font: 400 calc(15 * var(--u)) / 1.4 var(--lz-font);
+    color: var(--lz-muted);
+    padding: calc(6 * var(--u)) calc(18 * var(--u)) calc(4 * var(--u));
+    white-space: pre-line;
+  }
+
+  &__close {
+    text-align: left;
+    font: 500 calc(11 * var(--u)) var(--lz-font);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--lz-dim);
+    padding: calc(4 * var(--u)) calc(18 * var(--u)) calc(14 * var(--u));
+  }
+
+  &__time {
+    font: 500 calc(12 * var(--u)) var(--lz-mono);
+    color: var(--lz-dim);
+    top: calc(16 * var(--u));
+    right: calc(16 * var(--u));
+  }
+
+  &-prompt__choice {
+    font: 600 calc(16 * var(--u)) var(--lz-font);
+    background-color: var(--lz-s2);
+    border-radius: calc(10 * var(--u));
+    padding: calc(14 * var(--u));
+    margin: calc(6 * var(--u));
+
+    &-first {
+      background-color: var(--lz-amber);
+      color: var(--lz-amber-ink);
+    }
+  }
+}
+
+// types: 0 info · 1 warn · 2 error · 3 prompt
+.notification.notification__border-0 {
+  border-left: calc(5 * var(--u)) solid var(--lz-cyan);
+}
+
+.notification.notification__border-1 {
+  border-left: calc(5 * var(--u)) solid var(--lz-amber);
+}
+
+.notification.notification__border-2 {
+  border-left: calc(5 * var(--u)) solid var(--lz-red);
+}
+
+.notification.notification__border-3 {
+  border-left: calc(5 * var(--u)) solid var(--lz-amber);
+}

@@ -9,7 +9,7 @@ import { LaserJogComponent } from './components/laser/jog/laser-jog.component';
 import { LaserMoreComponent } from './components/laser/more/laser-more.component';
 import { LaserPrepareComponent } from './components/laser/prepare/laser-prepare.component';
 import { LaserRunningComponent } from './components/laser/running/laser-running.component';
-import { SettingsComponent } from './components/settings/settings.component';
+import { LaserSettingsComponent } from './components/laser/settings/laser-settings.component';
 import { ConfigInvalidComponent } from './components/setup/invalid-config/invalid-config.component';
 import { ConfigSetupComponent } from './components/setup/setup.component';
 import { StandbyComponent } from './components/standby/standby.component';
@@ -29,7 +29,7 @@ const routes: Routes = [
   { path: 'more', component: LaserMoreComponent },
   { path: 'invalid-config', component: ConfigInvalidComponent },
   { path: 'no-config', component: ConfigSetupComponent },
-  { path: 'settings', component: SettingsComponent },
+  { path: 'settings', component: LaserSettingsComponent },
   { path: 'standby', component: StandbyComponent },
 ];
 

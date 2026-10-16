@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -72,6 +72,9 @@ export class LzStatusBarComponent implements OnInit, OnDestroy {
   @Input() public title: string;
   @Input() public subtitle: string;
   @Input() public overlay = false;
+  /** When set, the back button emits (backPress) instead of navigating */
+  @Input() public customBack = false;
+  @Output() public backPress = new EventEmitter<void>();
 
   public status: LaserStatus;
   public clock = '';
@@ -109,6 +112,10 @@ export class LzStatusBarComponent implements OnInit, OnDestroy {
   }
 
   public goBack(): void {
+    if (this.customBack) {
+      this.backPress.emit();
+      return;
+    }
     this.router.navigate([this.backTo]);
   }
 }

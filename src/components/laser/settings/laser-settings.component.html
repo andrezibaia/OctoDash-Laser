@@ -1,0 +1,443 @@
+<div class="lz-screen">
+  <div class="lz-screen__canvas">
+    <lz-status-bar [back]="true" [customBack]="true" (backPress)="back()" [title]="'Definições' | lzt">
+      @if (armed === 'discard') {
+        <span class="discard">{{ 'Tocar outra vez para sair sem guardar' | lzt }}</span>
+      }
+      <button
+        class="lz-btn save"
+        [class.lz-btn--amber]="dirty"
+        [class.lz-btn--disabled]="!dirty || saving"
+        (click)="save()">
+        <lz-icon name="check" size="sm"></lz-icon>{{ (saving ? 'A guardar…' : 'Guardar') | lzt }}
+      </button>
+    </lz-status-bar>
+
+    <div class="lz-screen__body layout">
+      <nav class="nav">
+        @for (s of sections; track s.id) {
+          <button class="nav__item" [class.nav__item--on]="section === s.id" (click)="section = s.id">
+            <lz-icon [name]="s.icon" size="sm"></lz-icon>{{ s.label | lzt }}
+          </button>
+        }
+      </nav>
+
+      <div class="panel lz-panel">
+        <!-- ============ Máquina ============ -->
+        @if (section === 'machine') {
+          <div class="row">
+            <div class="row__label">
+              {{ 'Nome' | lzt }}<small>{{ 'aparece no assistente e no OctoPrint' | lzt }}</small>
+            </div>
+            <input class="text" maxlength="20" [(ngModel)]="config.printer.name" />
+          </div>
+          <div class="group">{{ 'Área de trabalho' | lzt }}</div>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser.bed,
+                key: 'width',
+                label: 'Largura',
+                unit: 'mm',
+                step: 10,
+                min: 10,
+                max: 2000,
+              }
+            "></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser.bed,
+                key: 'height',
+                label: 'Altura',
+                unit: 'mm',
+                step: 10,
+                min: 10,
+                max: 2000,
+              }
+            "></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser.bed,
+                key: 'xMin',
+                label: 'X mínimo (máquina)',
+                unit: 'mm',
+                step: 1,
+                min: -2000,
+                max: 2000,
+              }
+            "></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser.bed,
+                key: 'yMin',
+                label: 'Y mínimo (máquina)',
+                unit: 'mm',
+                step: 1,
+                min: -2000,
+                max: 2000,
+              }
+            "></ng-container>
+          <div class="row">
+            <div class="row__label">
+              {{ 'Sentido do eixo Y' | lzt }}<small>{{ 'como a cabeça se move com Y+' | lzt }}</small>
+            </div>
+            <div class="lz-seg seg">
+              <button
+                class="lz-seg__item"
+                [class.lz-seg__item--on]="config.laser.bed.yAxisUp"
+                (click)="config.laser.bed.yAxisUp = true">
+                {{ 'Y+ para trás' | lzt }}
+              </button>
+              <button
+                class="lz-seg__item"
+                [class.lz-seg__item--on]="!config.laser.bed.yAxisUp"
+                (click)="config.laser.bed.yAxisUp = false">
+                {{ 'Y+ para a frente' | lzt }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ============ Movimento ============ -->
+        @if (section === 'motion') {
+          <div class="row">
+            <div class="row__label">
+              {{ 'Velocidade de jog' | lzt }}<small>{{ 'botões de mover' | lzt }}</small>
+            </div>
+            <div class="stepper">
+              <button class="stepper__btn" (click)="stepJogSpeed(-1)">−</button>
+              <input
+                class="stepper__value lz-mono"
+                inputmode="decimal"
+                [ngModel]="jogSpeed"
+                (change)="setJogSpeed($any($event.target).value)" />
+              <span class="stepper__unit">mm/s</span>
+              <button class="stepper__btn" (click)="stepJogSpeed(1)">+</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="row__label">
+              {{ 'Passos' | lzt }}<small>{{ 'até 6 valores, em mm' | lzt }}</small>
+            </div>
+            <input class="text lz-mono" [(ngModel)]="stepsText" (blur)="applySteps()" (keyup.enter)="applySteps()" />
+          </div>
+          <div class="row">
+            <div class="row__label">{{ 'Passo inicial' | lzt }}</div>
+            <div class="lz-seg seg">
+              @for (s of config.laser.jog.steps; track s) {
+                <button
+                  class="lz-seg__item"
+                  [class.lz-seg__item--on]="config.laser.jog.defaultStep === s"
+                  (click)="config.laser.jog.defaultStep = s">
+                  {{ s }}
+                </button>
+              }
+            </div>
+          </div>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser.jog,
+                key: 'continuousMax',
+                label: 'Contínuo: distância máxima',
+                hint: 'por cada toque longo',
+                unit: 'mm',
+                step: 50,
+                min: 10,
+                max: 2000,
+              }
+            "></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser,
+                key: 'rapidFeed',
+                label: 'Velocidade de deslocação (G0)',
+                hint: 'usada nas estimativas de tempo',
+                unit: 'mm/min',
+                step: 500,
+                min: 100,
+                max: 60000,
+              }
+            "></ng-container>
+          <div class="row">
+            <div class="row__label">
+              {{ 'Inverter setas' | lzt }}<small>{{ 'se a cabeça andar ao contrário' | lzt }}</small>
+            </div>
+            <div class="toggles">
+              <button
+                class="toggle"
+                [class.toggle--on]="config.octodash.invertAxisControl.x"
+                (click)="config.octodash.invertAxisControl.x = !config.octodash.invertAxisControl.x">
+                X
+              </button>
+              <button
+                class="toggle"
+                [class.toggle--on]="config.octodash.invertAxisControl.y"
+                (click)="config.octodash.invertAxisControl.y = !config.octodash.invertAxisControl.y">
+                Y
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ============ Laser ============ -->
+        @if (section === 'laser') {
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser,
+                key: 'maxPower',
+                label: 'Potência máxima (S)',
+                hint: 'igual ao $30 da placa',
+                unit: 'S',
+                step: 1,
+                min: 1,
+                max: 100000,
+              }
+            "></ng-container>
+          <div class="group">{{ 'Disparo de teste' | lzt }}</div>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser.testFire,
+                key: 'power',
+                label: 'Potência',
+                unit: '%',
+                step: 1,
+                min: 1,
+                max: 100,
+              }
+            "></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.laser.testFire,
+                key: 'durationMs',
+                label: 'Duração',
+                unit: 'ms',
+                step: 50,
+                min: 10,
+                max: 2000,
+              }
+            "></ng-container>
+          <div class="group">{{ 'Lista antes de começar' | lzt }}</div>
+          @for (item of config.laser.checklist; track $index) {
+            <div class="row row--item">
+              <div class="row__label">{{ item | lzt }}</div>
+              <button class="icon-btn" (click)="removeChecklist($index)" [attr.aria-label]="'Remover' | lzt">
+                <lz-icon name="x" size="sm"></lz-icon>
+              </button>
+            </div>
+          }
+          <div class="row row--item">
+            <input
+              class="text text--grow"
+              [placeholder]="'Novo item…' | lzt"
+              [(ngModel)]="newChecklistItem"
+              (keyup.enter)="addChecklist()" />
+            <button class="lz-btn add" (click)="addChecklist()">{{ 'Adicionar' | lzt }}</button>
+          </div>
+        }
+
+        <!-- ============ Câmara ============ -->
+        @if (section === 'camera') {
+          <div class="row">
+            <div class="row__label">
+              {{ 'Câmara' | lzt }}<small>{{ 'mostrar no início e durante o trabalho' | lzt }}</small>
+            </div>
+            <div class="toggles">
+              <button
+                class="toggle toggle--wide"
+                [class.toggle--on]="config.laser.camera.enabled"
+                (click)="config.laser.camera.enabled = !config.laser.camera.enabled">
+                {{ (config.laser.camera.enabled ? 'Ligada' : 'Desligada') | lzt }}
+              </button>
+            </div>
+          </div>
+          <div class="row row--stack">
+            <div class="row__label">
+              {{ 'Endereço do vídeo (MJPEG)' | lzt }}<small>{{ 'ex.: go2rtc /api/stream.mjpeg?src=k40' | lzt }}</small>
+            </div>
+            <input class="text text--full lz-mono" [(ngModel)]="config.laser.camera.url" />
+          </div>
+          @if (config.laser.camera.enabled && config.laser.camera.url) {
+            <div class="preview"><lz-camera [url]="config.laser.camera.url"></lz-camera></div>
+          }
+        }
+
+        <!-- ============ Ecrã ============ -->
+        @if (section === 'screen') {
+          <div class="row">
+            <div class="row__label">Idioma · Language</div>
+            <div class="lz-seg seg">
+              <button
+                class="lz-seg__item"
+                [class.lz-seg__item--on]="config.laser.language === 'pt'"
+                (click)="config.laser.language = 'pt'">
+                Português
+              </button>
+              <button
+                class="lz-seg__item"
+                [class.lz-seg__item--on]="config.laser.language === 'en'"
+                (click)="config.laser.language = 'en'">
+                English
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="row__label">
+              {{ 'Ecrã tátil' | lzt }}<small>{{ 'esconde o cursor do rato' | lzt }}</small>
+            </div>
+            <div class="toggles">
+              <button
+                class="toggle toggle--wide"
+                [class.toggle--on]="config.octodash.touchscreen"
+                (click)="config.octodash.touchscreen = !config.octodash.touchscreen">
+                {{ (config.octodash.touchscreen ? 'Ligado' : 'Desligado') | lzt }}
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="row__label">
+              {{ 'Apagar ecrã em repouso' | lzt }}<small>{{ 'quando o OctoPrint fica sem ligação' | lzt }}</small>
+            </div>
+            <div class="toggles">
+              <button
+                class="toggle toggle--wide"
+                [class.toggle--on]="config.octodash.turnScreenOffWhileSleeping"
+                (click)="config.octodash.turnScreenOffWhileSleeping = !config.octodash.turnScreenOffWhileSleeping">
+                {{ (config.octodash.turnScreenOffWhileSleeping ? 'Ligado' : 'Desligado') | lzt }}
+              </button>
+            </div>
+          </div>
+          <ng-container
+            *ngTemplateOutlet="
+              stepper;
+              context: {
+                obj: config.octodash,
+                key: 'pollingInterval',
+                label: 'Atualização de dados',
+                hint: 'intervalo entre leituras',
+                unit: 'ms',
+                step: 500,
+                min: 500,
+                max: 10000,
+              }
+            "></ng-container>
+          <div class="group">{{ 'Avançado' | lzt }}</div>
+          <div class="row row--stack">
+            <div class="row__label">{{ 'Comando para apagar o ecrã' | lzt }}</div>
+            <input class="text text--full lz-mono" [(ngModel)]="config.octodash.screenSleepCommand" />
+          </div>
+          <div class="row row--stack">
+            <div class="row__label">{{ 'Comando para acender o ecrã' | lzt }}</div>
+            <input class="text text--full lz-mono" [(ngModel)]="config.octodash.screenWakeupCommand" />
+          </div>
+        }
+
+        <!-- ============ Ligação ============ -->
+        @if (section === 'connection') {
+          <div class="row row--stack">
+            <div class="row__label">{{ 'Endereço do OctoPrint' | lzt }}</div>
+            <input class="text text--full lz-mono" [(ngModel)]="config.octoprint.url" />
+          </div>
+          <div class="row row--stack">
+            <div class="row__label">
+              {{ 'Chave da API' | lzt }}<small>{{ 'OctoPrint › Definições › Application Keys' | lzt }}</small>
+            </div>
+            <div class="row__inline">
+              <input
+                class="text text--grow lz-mono"
+                [type]="showToken ? 'text' : 'password'"
+                autocomplete="off"
+                [(ngModel)]="config.octoprint.accessToken" />
+              <button class="lz-btn add" (click)="showToken = !showToken">
+                {{ (showToken ? 'Esconder' : 'Mostrar') | lzt }}
+              </button>
+            </div>
+          </div>
+          <p class="note">
+            {{
+              'A placa GRBL liga-se pelo OctoPrint (perfil e porta série definidos lá, com o Better GRBL Support).'
+                | lzt
+            }}
+          </p>
+        }
+
+        <!-- ============ Sobre ============ -->
+        @if (section === 'about') {
+          <div class="about">
+            <div class="about__name">OctoDash-Laser</div>
+            @if (version) {
+              <div class="about__ver lz-mono">v{{ version }}</div>
+            }
+            <p>
+              {{
+                'Painel tátil para gravadoras laser GRBL, baseado no OctoDash 2.8.0 de UnchartedBull e colaboradores (Apache-2.0).'
+                  | lzt
+              }}
+            </p>
+            <p class="note">
+              {{
+                'As atualizações são instaladas manualmente (pacote .deb); o painel não procura novas versões do OctoDash original.'
+                  | lzt
+              }}
+            </p>
+          </div>
+          <div class="group">{{ 'Configuração' | lzt }}</div>
+          <div class="row">
+            <div class="row__label">
+              {{ 'Repor e abrir o assistente' | lzt }}<small>{{ 'apaga esta configuração' | lzt }}</small>
+            </div>
+            <button class="lz-btn danger" [class.armed]="armed === 'reset'" (click)="resetConfig()">
+              {{ (armed === 'reset' ? 'Tocar para confirmar' : 'Repor') | lzt }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template
+  #stepper
+  let-obj="obj"
+  let-key="key"
+  let-label="label"
+  let-hint="hint"
+  let-unit="unit"
+  let-step="step"
+  let-min="min"
+  let-max="max">
+  <div class="row">
+    <div class="row__label">
+      {{ label | lzt }}
+      @if (hint) {
+        <small>{{ hint | lzt }}</small>
+      }
+    </div>
+    <div class="stepper">
+      <button class="stepper__btn" (click)="step(obj, key, -step, min, max)">−</button>
+      <input
+        class="stepper__value lz-mono"
+        inputmode="decimal"
+        [ngModel]="obj[key]"
+        (change)="setNumber(obj, key, $any($event.target).value, min, max)" />
+      <span class="stepper__unit">{{ unit }}</span>
+      <button class="stepper__btn" (click)="step(obj, key, step, min, max)">+</button>
+    </div>
+  </div>
+</ng-template>
