@@ -6,6 +6,7 @@ import { CustomAction } from '../../../model';
 import { ConfigService } from '../../../services/config.service';
 import { ElectronService } from '../../../services/electron.service';
 import { LaserService } from '../../../services/laser/laser.service';
+import { tr } from '../../../services/laser/laser-i18n';
 import { NotificationService } from '../../../services/notification.service';
 import { SystemService } from '../../../services/system/system.service';
 
@@ -120,7 +121,7 @@ export class LaserMoreComponent implements OnDestroy {
           this.router.navigate(['/camera']);
           break;
         default:
-          this.notificationService.warn('Comando especial não suportado', special);
+          this.notificationService.warn(tr('Comando especial não suportado'), special);
       }
     }
     if (gcodes.length) this.laserService.send(gcodes, 3000);

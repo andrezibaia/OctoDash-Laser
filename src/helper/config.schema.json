@@ -605,6 +605,11 @@
             "type": "string"
           },
           "default": ["Tampa fechada", "Água a circular", "Ar comprimido ligado"]
+        },
+        "language": {
+          "type": "string",
+          "enum": ["pt", "en"],
+          "default": "pt"
         }
       }
     }

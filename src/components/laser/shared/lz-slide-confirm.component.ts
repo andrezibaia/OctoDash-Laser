@@ -1,5 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 
+import { tr } from '../../../services/laser/laser-i18n';
+
 /** Slide-to-confirm control: the knob must be dragged past 85 % of the track. */
 @Component({
   selector: 'lz-slide-confirm',
@@ -25,7 +27,7 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@
 })
 export class LzSlideConfirmComponent {
   @ViewChild('track') private track: ElementRef<HTMLElement>;
-  @Input() public label = 'Deslizar para iniciar';
+  @Input() public label = tr('Deslizar para iniciar');
   @Input() public tone: 'normal' | 'warn' = 'normal';
   @Input() public disabled = false;
   @Output() public confirmed = new EventEmitter<void>();

@@ -38,7 +38,7 @@ export class AppService {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     this.updateError = {
       "/ must have required property 'laser'": config => {
-        config.laser = _.cloneDeep(defaultConfig.laser);
+        config.laser = _.cloneDeep(defaultConfig.laser) as Config['laser'];
       },
       '/octodash must NOT have additional properties': config => {
         if ('showNotificationCenterIcon' in (config.octodash as any)) {

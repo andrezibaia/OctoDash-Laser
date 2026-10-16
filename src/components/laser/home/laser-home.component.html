@@ -8,7 +8,7 @@
           <lz-bed-map class="map" [parsed]="selected?.parsed"></lz-bed-map>
           @if (cameraEnabled) {
             <button class="view-toggle" (click)="setView('camera')">
-              <lz-icon name="camera" size="sm"></lz-icon>Câmara
+              <lz-icon name="camera" size="sm"></lz-icon>{{ 'Câmara' | lzt }}
             </button>
           }
         </div>
@@ -23,7 +23,9 @@
               >{{ fmt(status?.wpos?.y) }}<span class="lz-dro__unit"> mm</span></span
             >
           </div>
-          <div class="machine lz-mono">máq. {{ fmt(status?.mpos?.x, 1) }} · {{ fmt(status?.mpos?.y, 1) }}</div>
+          <div class="machine lz-mono">
+            {{ 'máq.' | lzt }} {{ fmt(status?.mpos?.x, 1) }} · {{ fmt(status?.mpos?.y, 1) }}
+          </div>
         </div>
       </div>
 
@@ -41,23 +43,23 @@
               <div class="notice__actions">
                 <button class="lz-btn lz-btn--amber" (click)="home()"><lz-icon name="home"></lz-icon>Home ($H)</button>
                 <button class="lz-btn lz-btn--ghost" (click)="unlock()">
-                  <lz-icon name="unlock" size="sm"></lz-icon>Desbloquear
+                  <lz-icon name="unlock" size="sm"></lz-icon>{{ 'Desbloquear' | lzt }}
                 </button>
               </div>
             </div>
           }
           @case ('door') {
             <div class="notice notice--red">
-              <div class="notice__head"><lz-icon name="door"></lz-icon>Porta aberta</div>
-              <p>Feche a tampa. O laser não dispara com a porta aberta.</p>
+              <div class="notice__head"><lz-icon name="door"></lz-icon>{{ 'Porta aberta' | lzt }}</div>
+              <p>{{ 'Feche a tampa. O laser não dispara com a porta aberta.' | lzt }}</p>
             </div>
           }
           @case ('offline') {
             <div class="notice notice--red">
-              <div class="notice__head"><lz-icon name="alert"></lz-icon>Sem ligação à placa</div>
-              <p>O OctoPrint não está ligado à placa GRBL.</p>
+              <div class="notice__head"><lz-icon name="alert"></lz-icon>{{ 'Sem ligação à placa' | lzt }}</div>
+              <p>{{ 'O OctoPrint não está ligado à placa GRBL.' | lzt }}</p>
               <div class="notice__actions">
-                <button class="lz-btn lz-btn--amber" (click)="connect()">Ligar</button>
+                <button class="lz-btn lz-btn--amber" (click)="connect()">{{ 'Ligar' | lzt }}</button>
               </div>
             </div>
           }
@@ -65,17 +67,17 @@
             <button class="lz-btn lz-btn--amber job-btn" (click)="openJobs()">
               <lz-icon name="folder" size="lg"></lz-icon>
               <div class="job-btn__text">
-                <div class="job-btn__title">Escolher trabalho</div>
+                <div class="job-btn__title">{{ 'Escolher trabalho' | lzt }}</div>
                 <small>{{ jobSubtitle }}</small>
               </div>
             </button>
           }
         }
         <button class="lz-btn lz-btn--tile" [class.lz-btn--disabled]="!canMove" (click)="go('/jog')">
-          <lz-icon name="move"></lz-icon>Mover
+          <lz-icon name="move"></lz-icon>{{ 'Mover' | lzt }}
         </button>
         <button class="lz-btn lz-btn--tile" [class.lz-btn--disabled]="!canMove" (click)="goToOrigin()">
-          <lz-icon name="pin"></lz-icon>Ir à origem
+          <lz-icon name="pin"></lz-icon>{{ 'Ir à origem' | lzt }}
         </button>
         <button
           class="lz-btn lz-btn--tile"
@@ -83,7 +85,9 @@
           (click)="home()">
           <lz-icon name="home"></lz-icon>Home
         </button>
-        <button class="lz-btn lz-btn--tile" (click)="go('/more')"><lz-icon name="dots"></lz-icon>Mais</button>
+        <button class="lz-btn lz-btn--tile" (click)="go('/more')">
+          <lz-icon name="dots"></lz-icon>{{ 'Mais' | lzt }}
+        </button>
       </div>
     } @else {
       <lz-camera class="camera" [url]="cameraUrl"></lz-camera>
@@ -91,20 +95,22 @@
       <div class="cam-dro lz-mono">X {{ fmt(status?.wpos?.x) }} &nbsp;Y {{ fmt(status?.wpos?.y) }}</div>
       @if (blocked === 'alarm') {
         <div class="cam-alarm">
-          <lz-icon name="alert"></lz-icon>Alarme — faça Home para desbloquear
+          <lz-icon name="alert"></lz-icon>{{ 'Alarme — faça Home para desbloquear' | lzt }}
           <button class="lz-btn lz-btn--amber" (click)="home()">Home</button>
         </div>
       }
       <div class="cam-bar">
         <button class="lz-btn lz-btn--amber cam-bar__main" (click)="openJobs()">
-          <lz-icon name="folder"></lz-icon>Trabalho
+          <lz-icon name="folder"></lz-icon>{{ 'Trabalho' | lzt }}
         </button>
         <button class="lz-btn cam-bar__btn" [class.lz-btn--disabled]="!canMove" (click)="go('/jog')">
-          <lz-icon name="move"></lz-icon>Mover
+          <lz-icon name="move"></lz-icon>{{ 'Mover' | lzt }}
         </button>
-        <button class="lz-btn cam-bar__btn" (click)="setView('map')"><lz-icon name="map"></lz-icon>Mapa</button>
+        <button class="lz-btn cam-bar__btn" (click)="setView('map')">
+          <lz-icon name="map"></lz-icon>{{ 'Mapa' | lzt }}
+        </button>
         <button class="lz-btn cam-bar__btn" (click)="home()"><lz-icon name="home"></lz-icon>Home</button>
-        <button class="lz-btn cam-bar__sq" (click)="go('/more')" aria-label="Mais">
+        <button class="lz-btn cam-bar__sq" (click)="go('/more')" [attr.aria-label]="'Mais' | lzt">
           <lz-icon name="dots"></lz-icon>
         </button>
       </div>

@@ -1,3 +1,5 @@
+import { tr } from '../../../services/laser/laser-i18n';
+
 export function formatDuration(seconds: number | null | undefined): string {
   if (seconds === null || seconds === undefined || !Number.isFinite(seconds) || seconds < 0) return '—';
   const s = Math.round(seconds);
@@ -28,11 +30,11 @@ export function formatDate(epochSeconds: number): string {
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
   if (d.toDateString() === today.toDateString()) {
-    return `hoje ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return tr('hoje {t}', { t: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` });
   }
-  if (d.toDateString() === yesterday.toDateString()) return 'ontem';
+  if (d.toDateString() === yesterday.toDateString()) return tr('ontem');
   const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-  return `${d.getDate()} ${months[d.getMonth()]}`;
+  return `${d.getDate()} ${tr(months[d.getMonth()])}`;
 }
 
 export function formatSize(bytes: number): string {

@@ -6,15 +6,15 @@ o dono da porta série; o RayForge continua a enviar trabalhos pelo driver OctoP
 
 ## Ecrãs (v1 = F1–F8 + câmara)
 
-| Rota | Ecrã | O que faz |
-|---|---|---|
-| `/main-screen` | Início | Estado GRBL, mapa da mesa 300×200 com cabeça/origem/trabalho, posição; um toque troca para a **câmara ao vivo** (go2rtc). Alarme / porta / sem ligação aparecem no lugar do botão principal. |
-| `/jog` | Mover | Cruz com diagonais; passo 0.1/1/10/50 mm **ou contínuo (∞)**; Origem aqui; Home; Desbloquear; Disparo de teste (manter premido). |
-| `/jobs` | Trabalhos | Ficheiros do OctoPrint (recentes primeiro), traçado lido do G-code, tamanho/tempo/potência, aviso se sai da mesa, Enquadrar. |
-| `/prepare` | Antes de começar | Lista de verificação (máquina, área, enquadramento, itens manuais configuráveis) — **só avisa**, não bloqueia; deslizar para iniciar. |
-| `/job` | A trabalhar | Progresso desenhado no traçado, %, falta/decorrido, Pausa (um toque), Parar (manter 1 s). Abre sozinho quando um trabalho começa (também se vier do RayForge). |
-| `/camera` | Câmara | Imagem ao vivo + Mover / Origem aqui. |
-| `/more` | Mais | Ir à origem, Desbloquear, Definições, botões personalizados, recarregar, reiniciar OctoPrint, desligar (duplo toque). |
+| Rota           | Ecrã             | O que faz                                                                                                                                                                                    |
+| -------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/main-screen` | Início           | Estado GRBL, mapa da mesa 300×200 com cabeça/origem/trabalho, posição; um toque troca para a **câmara ao vivo** (go2rtc). Alarme / porta / sem ligação aparecem no lugar do botão principal. |
+| `/jog`         | Mover            | Cruz com diagonais; passo 0.1/1/10/50 mm **ou contínuo (∞)**; Origem aqui; Home; Desbloquear; Disparo de teste (manter premido).                                                             |
+| `/jobs`        | Trabalhos        | Ficheiros do OctoPrint (recentes primeiro), traçado lido do G-code, tamanho/tempo/potência, aviso se sai da mesa, Enquadrar.                                                                 |
+| `/prepare`     | Antes de começar | Lista de verificação (máquina, área, enquadramento, itens manuais configuráveis) — **só avisa**, não bloqueia; deslizar para iniciar.                                                        |
+| `/job`         | A trabalhar      | Progresso desenhado no traçado, %, falta/decorrido, Pausa (um toque), Parar (manter 1 s). Abre sozinho quando um trabalho começa (também se vier do RayForge).                               |
+| `/camera`      | Câmara           | Imagem ao vivo + Mover / Origem aqui.                                                                                                                                                        |
+| `/more`        | Mais             | Ir à origem, Desbloquear, Definições, botões personalizados, recarregar, reiniciar OctoPrint, desligar (duplo toque).                                                                        |
 
 Configuração nova em `laser` (ver `src/helper/config.schema.json`): `bed` (300×200, origem, eixo Y),
 `jog` (velocidade mm/min, passos, máximo contínuo), `testFire` (% e ms), `maxPower` ($30),

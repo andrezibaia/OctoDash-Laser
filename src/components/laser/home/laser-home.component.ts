@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { LaserState, LaserStatus } from '../../../model';
 import { ConfigService } from '../../../services/config.service';
 import { LaserService } from '../../../services/laser/laser.service';
+import { tr } from '../../../services/laser/laser-i18n';
 import { LaserJobService, SelectedJob } from '../../../services/laser/laser-job.service';
 import { SystemService } from '../../../services/system/system.service';
 import { ALARM_LOCKED, GRBL_ALARMS } from '../shared/lz-alarms';
@@ -60,10 +61,10 @@ export class LaserHomeComponent implements OnInit, OnDestroy {
     const sel = this.selected;
     if (sel?.file) {
       const time = sel.parsed ? ` · ${formatMinutes(sel.parsed.estimatedSeconds)}` : '';
-      return `selecionado: ${sel.file.display}${time}`;
+      return tr('selecionado: {name}', { name: sel.file.display }) + time;
     }
     const last = this.jobService.getLastJob();
-    return last ? `último: ${last.display}` : 'ficheiros enviados pelo RayForge';
+    return last ? tr('último: {name}', { name: last.display }) : tr('ficheiros enviados pelo RayForge');
   }
 
   public get blocked(): 'alarm' | 'door' | 'offline' | null {
@@ -81,7 +82,8 @@ export class LaserHomeComponent implements OnInit, OnDestroy {
 
   public get alarm(): { title: string; help: string } {
     const code = this.status?.alarmCode;
-    return (code && GRBL_ALARMS[code]) || ALARM_LOCKED;
+    const alarm = (code && GRBL_ALARMS[code]) || ALARM_LOCKED;
+    return { title: tr(alarm.title), help: tr(alarm.help) };
   }
 
   public get alarmCode(): number | null {

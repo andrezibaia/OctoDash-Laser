@@ -6,6 +6,7 @@ import { JobStatus, LaserState, LaserStatus, ParsedGcode } from '../../../model'
 import { ConfigService } from '../../../services/config.service';
 import { segmentIndexAt } from '../../../services/laser/gcode-parser';
 import { LaserService } from '../../../services/laser/laser.service';
+import { tr } from '../../../services/laser/laser-i18n';
 import { LaserJobService } from '../../../services/laser/laser-job.service';
 import { SocketService } from '../../../services/socket/socket.service';
 import { formatDuration, formatSize } from '../shared/lz-format';
@@ -125,11 +126,11 @@ export class LaserRunningComponent implements OnInit, OnDestroy {
   }
 
   public get headline(): string {
-    if (this.finished === 'done') return 'Concluído';
-    if (this.finished === 'stopped') return 'Parado';
-    if (!this.active) return 'Sem trabalho em curso';
-    if (this.pausing) return 'A pausar…';
-    return this.paused ? 'Em pausa' : 'A trabalhar';
+    if (this.finished === 'done') return tr('Concluído');
+    if (this.finished === 'stopped') return tr('Parado');
+    if (!this.active) return tr('Sem trabalho em curso');
+    if (this.pausing) return tr('A pausar…');
+    return tr(this.paused ? 'Em pausa' : 'A trabalhar');
   }
 
   /**

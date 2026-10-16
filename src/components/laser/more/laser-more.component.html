@@ -1,19 +1,21 @@
 <div class="lz-screen">
   <div class="lz-screen__canvas">
-    <lz-status-bar [back]="true" title="Mais"></lz-status-bar>
+    <lz-status-bar [back]="true" [title]="'Mais' | lzt"></lz-status-bar>
 
     <div class="lz-screen__body grid">
       <button class="lz-btn lz-btn--tile" [class.lz-btn--disabled]="!canMove" (click)="goToOrigin()">
-        <lz-icon name="pin"></lz-icon>Ir à origem<small>G0 X0 Y0</small>
+        <lz-icon name="pin"></lz-icon>{{ 'Ir à origem' | lzt }}<small>G0 X0 Y0</small>
       </button>
       <button class="lz-btn lz-btn--tile" (click)="unlock()">
-        <lz-icon name="unlock"></lz-icon>Desbloquear<small>$X</small>
+        <lz-icon name="unlock"></lz-icon>{{ 'Desbloquear' | lzt }}<small>$X</small>
       </button>
       @if (cameraEnabled) {
-        <button class="lz-btn lz-btn--tile" (click)="go('/camera')"><lz-icon name="camera"></lz-icon>Câmara</button>
+        <button class="lz-btn lz-btn--tile" (click)="go('/camera')">
+          <lz-icon name="camera"></lz-icon>{{ 'Câmara' | lzt }}
+        </button>
       }
       <button class="lz-btn lz-btn--tile" (click)="go('/settings')">
-        <lz-icon name="gear"></lz-icon>Definições<small>OctoDash</small>
+        <lz-icon name="gear"></lz-icon>{{ 'Definições' | lzt }}<small>OctoDash</small>
       </button>
 
       @for (action of customActions; track $index) {
@@ -23,25 +25,25 @@
           (click)="runCustom(action, $index)">
           <fa-icon [icon]="['fas', icon(action.icon)]" [style.color]="action.color"></fa-icon>
           <span class="lz-mono custom__cmd">{{
-            armed === 'custom-' + $index ? 'tocar para confirmar' : action.command
+            armed === 'custom-' + $index ? ('tocar para confirmar' | lzt) : action.command
           }}</span>
         </button>
       }
 
       <button class="lz-btn lz-btn--tile lz-btn--ghost" (click)="reloadScreen()">
-        <lz-icon name="reload"></lz-icon>Recarregar ecrã
+        <lz-icon name="reload"></lz-icon>{{ 'Recarregar ecrã' | lzt }}
       </button>
       <button
         class="lz-btn lz-btn--tile lz-btn--ghost"
         [class.armed]="armed === 'restart'"
         (click)="restartOctoPrint()">
-        <lz-icon name="reload"></lz-icon>{{ armed === 'restart' ? 'Confirmar' : 'Reiniciar OctoPrint' }}
+        <lz-icon name="reload"></lz-icon>{{ (armed === 'restart' ? 'Confirmar' : 'Reiniciar OctoPrint') | lzt }}
       </button>
       <button
         class="lz-btn lz-btn--tile lz-btn--ghost danger"
         [class.armed]="armed === 'shutdown'"
         (click)="shutdown()">
-        <lz-icon name="power"></lz-icon>{{ armed === 'shutdown' ? 'Confirmar' : 'Desligar Pi' }}
+        <lz-icon name="power"></lz-icon>{{ (armed === 'shutdown' ? 'Confirmar' : 'Desligar Pi') | lzt }}
       </button>
     </div>
   </div>

@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 
 import { ConfigSchema as Config, CustomAction, Laser, URLSplit } from '../model';
 import { ElectronService } from './electron.service';
+import { setLaserLanguage } from './laser/laser-i18n';
 import { NotificationService } from './notification.service';
 
 interface HttpHeader {
@@ -59,6 +60,7 @@ export class ConfigService {
 
   private initialize(config: Config): void {
     this.config = config;
+    setLaserLanguage(config?.laser?.language);
     this.electronService.send('checkConfig', config);
   }
 

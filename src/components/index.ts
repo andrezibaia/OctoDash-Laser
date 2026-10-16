@@ -22,6 +22,7 @@ import { LzHoldDirective } from './laser/shared/lz-hold.directive';
 import { LzIconComponent } from './laser/shared/lz-icon.component';
 import { LzSlideConfirmComponent } from './laser/shared/lz-slide-confirm.component';
 import { LzStatusBarComponent } from './laser/shared/lz-status-bar.component';
+import { LzTranslatePipe } from './laser/shared/lz-translate.pipe';
 import { BottomBarComponent } from './main-screen/bottom-bar/bottom-bar.component';
 import { HeightProgressComponent } from './main-screen/job-status/height-progress/height-progress.component';
 import { JobStatusComponent } from './main-screen/job-status/job-status.component';
@@ -106,4 +107,5 @@ export default [
   LzBedMapComponent,
   LzSlideConfirmComponent,
   LzCameraComponent,
+  LzTranslatePipe,
 ];

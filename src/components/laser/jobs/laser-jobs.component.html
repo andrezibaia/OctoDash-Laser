@@ -1,19 +1,21 @@
 <div class="lz-screen">
   <div class="lz-screen__canvas">
-    <lz-status-bar [back]="true" title="Trabalhos" subtitle="recentes primeiro"></lz-status-bar>
+    <lz-status-bar [back]="true" [title]="'Trabalhos' | lzt" [subtitle]="'recentes primeiro' | lzt"></lz-status-bar>
 
     <div class="list">
       @if (files === null) {
-        <div class="empty"><span class="loading-dots">A ler ficheiros</span></div>
+        <div class="empty">
+          <span class="loading-dots">{{ 'A ler ficheiros' | lzt }}</span>
+        </div>
       } @else if (loadError) {
         <div class="empty">
           {{ loadError }}
-          <button class="lz-btn retry" (click)="load()">Tentar de novo</button>
+          <button class="lz-btn retry" (click)="load()">{{ 'Tentar de novo' | lzt }}</button>
         </div>
       } @else if (files.length === 0) {
         <div class="empty">
-          Sem ficheiros G-code no OctoPrint.<br />
-          <small>Envie um trabalho a partir do RayForge.</small>
+          {{ 'Sem ficheiros G-code no OctoPrint.' | lzt }}<br />
+          <small>{{ 'Envie um trabalho a partir do RayForge.' | lzt }}</small>
         </div>
       } @else {
         @for (f of files; track f.path) {
@@ -31,39 +33,43 @@
     <div class="detail">
       <lz-bed-map class="map" [parsed]="selected?.parsed"></lz-bed-map>
       @if (selected?.loading) {
-        <div class="map-msg"><span class="loading-dots">A analisar o G-code</span></div>
+        <div class="map-msg">
+          <span class="loading-dots">{{ 'A analisar o G-code' | lzt }}</span>
+        </div>
       } @else if (selected?.error) {
         <div class="map-msg map-msg--bad">{{ selected.error }}</div>
       }
 
       <div class="stats">
         <div>
-          <div class="lz-kv">Tamanho (mm)</div>
+          <div class="lz-kv">{{ 'Tamanho (mm)' | lzt }}</div>
           <div class="lz-mono stat">{{ size }}</div>
         </div>
         <div>
-          <div class="lz-kv">Tempo</div>
+          <div class="lz-kv">{{ 'Tempo' | lzt }}</div>
           <div class="lz-mono stat">{{ time }}</div>
         </div>
         <div>
-          <div class="lz-kv">Potência</div>
+          <div class="lz-kv">{{ 'Potência' | lzt }}</div>
           <div class="lz-mono stat">{{ power }}</div>
         </div>
       </div>
 
       @if (fits === false) {
-        <div class="warn"><lz-icon name="alert" size="sm"></lz-icon>Sai fora da mesa com a origem atual</div>
+        <div class="warn">
+          <lz-icon name="alert" size="sm"></lz-icon>{{ 'Sai fora da mesa com a origem atual' | lzt }}
+        </div>
       }
 
       <div class="actions">
         <button class="lz-btn" [class.lz-btn--disabled]="!canFrame" (click)="frame()">
-          <lz-icon name="frame"></lz-icon>Enquadrar
+          <lz-icon name="frame"></lz-icon>{{ 'Enquadrar' | lzt }}
           @if (selected?.framed) {
             <lz-icon name="check" size="sm" class="ok"></lz-icon>
           }
         </button>
         <button class="lz-btn lz-btn--amber prepare" [class.lz-btn--disabled]="!selected?.parsed" (click)="prepare()">
-          Preparar →
+          {{ 'Preparar →' | lzt }}
         </button>
       </div>
     </div>

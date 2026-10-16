@@ -1,6 +1,6 @@
 <div class="lz-screen">
   <div class="lz-screen__canvas">
-    <lz-status-bar [back]="true" backTo="/jobs" title="Antes de começar" [subtitle]="selected?.file?.display">
+    <lz-status-bar [back]="true" backTo="/jobs" [title]="'Antes de começar' | lzt" [subtitle]="selected?.file?.display">
     </lz-status-bar>
 
     <div class="checks">

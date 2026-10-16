@@ -1,6 +1,6 @@
 <div class="lz-screen">
   <div class="lz-screen__canvas">
-    <lz-status-bar [title]="job?.file || 'Trabalho'" [back]="!active" [subtitle]="headline"></lz-status-bar>
+    <lz-status-bar [title]="job?.file || ('Trabalho' | lzt)" [back]="!active" [subtitle]="headline"></lz-status-bar>
 
     <div class="view">
       @if (view === 'map') {
@@ -19,7 +19,7 @@
       @if (cameraEnabled) {
         <button class="lz-btn" (click)="setView(view === 'map' ? 'camera' : 'map')">
           <lz-icon [name]="view === 'map' ? 'camera' : 'map'" size="sm"></lz-icon
-          >{{ view === 'map' ? 'Câmara' : 'Mapa' }}
+          >{{ (view === 'map' ? 'Câmara' : 'Mapa') | lzt }}
         </button>
       }
     </div>
@@ -28,11 +28,11 @@
       <div class="info__top">
         <div class="pct lz-mono">{{ percent }}<span>%</span></div>
         <div class="t">
-          <div class="lz-kv">Falta</div>
+          <div class="lz-kv">{{ 'Falta' | lzt }}</div>
           <div class="lz-mono t__v">{{ active ? fmtTime(timeLeft) : '—' }}</div>
         </div>
         <div class="t">
-          <div class="lz-kv">Decorrido</div>
+          <div class="lz-kv">{{ 'Decorrido' | lzt }}</div>
           <div class="lz-mono t__v t__v--muted">{{ fmtTime(job?.printTimeSeconds) }}</div>
         </div>
       </div>
@@ -41,15 +41,19 @@
       </div>
       <div class="lz-kv sub">
         @if (endsAt) {
-          Termina ≈ {{ endsAt }} ·
+          {{ 'Termina ≈ {t}' | lzt: { t: endsAt } }} ·
         }
-        {{ fmtSize(job?.filepos) || '0 B' }} de {{ fmtSize(job?.fileSize) }}
+        {{ '{a} de {b}' | lzt: { a: fmtSize(job?.filepos) || '0 B', b: fmtSize(job?.fileSize) } }}
       </div>
 
       @if (status?.state === LaserState.door) {
-        <div class="alert"><lz-icon name="door" size="sm"></lz-icon>Porta aberta — o trabalho está suspenso</div>
+        <div class="alert">
+          <lz-icon name="door" size="sm"></lz-icon>{{ 'Porta aberta — o trabalho está suspenso' | lzt }}
+        </div>
       } @else if (status?.state === LaserState.alarm) {
-        <div class="alert"><lz-icon name="alert" size="sm"></lz-icon>Alarme GRBL — trabalho interrompido</div>
+        <div class="alert">
+          <lz-icon name="alert" size="sm"></lz-icon>{{ 'Alarme GRBL — trabalho interrompido' | lzt }}
+        </div>
       }
     </div>
 
@@ -57,18 +61,22 @@
       @if (active) {
         <button class="lz-btn pause" [class.lz-btn--disabled]="pausing" (click)="togglePause()">
           @if (pausing) {
-            <span class="pausing">A pausar…<small>termina o movimento atual</small></span>
+            <span class="pausing"
+              >{{ 'A pausar…' | lzt }}<small>{{ 'termina o movimento atual' | lzt }}</small></span
+            >
           } @else {
-            <lz-icon [name]="paused ? 'play' : 'pause'" size="lg"></lz-icon>{{ paused ? 'Retomar' : 'Pausa' }}
+            <lz-icon [name]="paused ? 'play' : 'pause'" size="lg"></lz-icon>{{ (paused ? 'Retomar' : 'Pausa') | lzt }}
           }
         </button>
         <button class="lz-btn lz-btn--outline-red stop" lzHold [lzHoldMs]="1000" (lzHold)="stop()">
           <span class="stop__fill"></span>
-          <lz-icon name="stop"></lz-icon>Parar<small>manter 1 s</small>
+          <lz-icon name="stop"></lz-icon>{{ 'Parar' | lzt }}<small>{{ 'manter 1 s' | lzt }}</small>
         </button>
       } @else {
-        <button class="lz-btn lz-btn--amber pause" (click)="goHome()"><lz-icon name="home"></lz-icon>Início</button>
-        <button class="lz-btn stop" (click)="again()"><lz-icon name="folder"></lz-icon>Trabalhos</button>
+        <button class="lz-btn lz-btn--amber pause" (click)="goHome()">
+          <lz-icon name="home"></lz-icon>{{ 'Início' | lzt }}
+        </button>
+        <button class="lz-btn stop" (click)="again()"><lz-icon name="folder"></lz-icon>{{ 'Trabalhos' | lzt }}</button>
       }
     </div>
   </div>

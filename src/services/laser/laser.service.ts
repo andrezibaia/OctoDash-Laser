@@ -7,6 +7,7 @@ import { Bounds, LaserState, LaserStatus, PrinterState, PrinterStatus, XY } from
 import { ConfigService } from '../config.service';
 import { NotificationService } from '../notification.service';
 import { SocketService } from '../socket/socket.service';
+import { tr } from './laser-i18n';
 
 const BGS_PLUGIN = 'bettergrblsupport';
 
@@ -282,7 +283,8 @@ export class LaserService implements OnDestroy {
     this.http
       .post(this.configService.getApiURL('printer/command'), { commands }, this.configService.getHTTPHeaders())
       .subscribe({
-        error: err => this.notificationService.error('Não foi possível enviar o comando', err?.message ?? String(err)),
+        error: err =>
+          this.notificationService.error(tr('Não foi possível enviar o comando'), err?.message ?? String(err)),
       });
     if (pollMs) this.ensurePolling(pollMs);
   }

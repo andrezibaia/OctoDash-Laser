@@ -8,21 +8,23 @@ import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@
   selector: 'lz-camera',
   template: `
     @if (url && !failed) {
-      <img #img [src]="src" alt="Câmara" (error)="onError()" (load)="loaded = true" />
+      <img #img [src]="src" [alt]="'Câmara' | lzt" (error)="onError()" (load)="loaded = true" />
     }
     @if (!url) {
       <div class="msg">
         <lz-icon name="camera" size="lg"></lz-icon>
-        <span>Câmara não configurada</span>
+        <span>{{ 'Câmara não configurada' | lzt }}</span>
       </div>
     } @else if (failed) {
       <div class="msg">
         <lz-icon name="camera" size="lg"></lz-icon>
-        <span>Câmara indisponível</span>
-        <button class="lz-btn retry" (click)="retry()">Tentar de novo</button>
+        <span>{{ 'Câmara indisponível' | lzt }}</span>
+        <button class="lz-btn retry" (click)="retry()">{{ 'Tentar de novo' | lzt }}</button>
       </div>
     } @else if (!loaded) {
-      <div class="msg"><span class="loading-dots">A ligar à câmara</span></div>
+      <div class="msg">
+        <span class="loading-dots">{{ 'A ligar à câmara' | lzt }}</span>
+      </div>
     }
   `,
   styles: [

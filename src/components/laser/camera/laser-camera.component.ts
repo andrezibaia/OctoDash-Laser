@@ -14,14 +14,14 @@ import { formatMm } from '../shared/lz-format';
     <div class="lz-screen">
       <div class="lz-screen__canvas">
         <lz-camera class="cam" [url]="url"></lz-camera>
-        <lz-status-bar [back]="true" title="Câmara" [overlay]="true"></lz-status-bar>
+        <lz-status-bar [back]="true" [title]="'Câmara' | lzt" [overlay]="true"></lz-status-bar>
         <div class="pos lz-mono">X {{ fmt(status?.wpos?.x) }} &nbsp;Y {{ fmt(status?.wpos?.y) }}</div>
         <div class="bar">
           <button class="lz-btn dark" [class.lz-btn--disabled]="!canMove" (click)="go('/jog')">
-            <lz-icon name="move"></lz-icon>Mover
+            <lz-icon name="move"></lz-icon>{{ 'Mover' | lzt }}
           </button>
           <button class="lz-btn lz-btn--amber" [class.lz-btn--disabled]="!canMove" (click)="setOrigin()">
-            <lz-icon name="target"></lz-icon>Origem aqui
+            <lz-icon name="target"></lz-icon>{{ 'Origem aqui' | lzt }}
           </button>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 
 import { LaserState, LaserStatus } from '../../../model';
 import { LaserService } from '../../../services/laser/laser.service';
+import { tr } from '../../../services/laser/laser-i18n';
 
 export const LASER_STATE_LABEL: Record<LaserState, string> = {
   [LaserState.offline]: 'Sem ligação',
@@ -40,7 +41,9 @@ export const LASER_STATE_TONE: Record<LaserState, 'green' | 'amber' | 'red' | 'c
   template: `
     <div class="bar" [class.bar--overlay]="overlay">
       @if (back) {
-        <button class="back" (click)="goBack()" aria-label="Voltar"><lz-icon name="back"></lz-icon></button>
+        <button class="back" (click)="goBack()" [attr.aria-label]="'Voltar' | lzt">
+          <lz-icon name="back"></lz-icon>
+        </button>
       }
       @if (title) {
         <div class="title">
@@ -54,7 +57,7 @@ export const LASER_STATE_TONE: Record<LaserState, 'green' | 'amber' | 'red' | 'c
       <div class="right">
         <ng-content></ng-content>
         @if (status?.airAssist) {
-          <div class="chip chip--on"><lz-icon name="wind" size="sm"></lz-icon>Ar</div>
+          <div class="chip chip--on"><lz-icon name="wind" size="sm"></lz-icon>{{ 'Ar' | lzt }}</div>
         }
         <div class="clock lz-mono">{{ clock }}</div>
       </div>
@@ -97,8 +100,8 @@ export class LzStatusBarComponent implements OnInit, OnDestroy {
   }
 
   public get label(): string {
-    if (this.status?.pausing) return 'A pausar';
-    return this.status ? LASER_STATE_LABEL[this.status.state] : '';
+    if (this.status?.pausing) return tr('A pausar');
+    return this.status ? tr(LASER_STATE_LABEL[this.status.state]) : '';
   }
 
   public get tone(): string {

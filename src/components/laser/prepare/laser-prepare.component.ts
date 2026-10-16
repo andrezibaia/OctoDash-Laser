@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { LaserState, LaserStatus } from '../../../model';
 import { ConfigService } from '../../../services/config.service';
 import { LaserService } from '../../../services/laser/laser.service';
+import { tr } from '../../../services/laser/laser-i18n';
 import { LaserJobService, SelectedJob } from '../../../services/laser/laser-job.service';
 import { formatMinutes } from '../shared/lz-format';
 import { LASER_STATE_LABEL } from '../shared/lz-status-bar.component';
@@ -75,8 +76,8 @@ export class LaserPrepareComponent implements OnInit, OnDestroy {
     const moving = [LaserState.jogging, LaserState.homing].includes(this.status.state);
     rows.push({
       id: 'machine',
-      title: ready ? 'Máquina pronta' : `Máquina: ${LASER_STATE_LABEL[this.status.state]}`,
-      detail: ready ? 'GRBL em Idle' : moving ? 'aguarde que pare' : 'o firmware pode recusar o trabalho',
+      title: ready ? tr('Máquina pronta') : tr('Máquina: {state}', { state: tr(LASER_STATE_LABEL[this.status.state]) }),
+      detail: tr(ready ? 'GRBL em Idle' : moving ? 'aguarde que pare' : 'o firmware pode recusar o trabalho'),
       state: ready ? 'ok' : moving ? 'warn' : 'bad',
       action:
         this.status.state === LaserState.alarm ? { label: 'Home', run: () => this.laserService.home() } : undefined,
@@ -89,28 +90,29 @@ export class LaserPrepareComponent implements OnInit, OnDestroy {
       : '';
     rows.push({
       id: 'bed',
-      title:
+      title: tr(
         fits === false ? 'Sai fora da área de trabalho' : fits ? 'Dentro da área de trabalho' : 'Área por verificar',
-      detail: fits === null ? 'posição desconhecida — faça Home' : range,
+      ),
+      detail: fits === null ? tr('posição desconhecida — faça Home') : range,
       state: fits === false ? 'bad' : fits ? 'ok' : 'warn',
     });
 
     rows.push({
       id: 'frame',
-      title: this.selected.framed ? 'Enquadrado' : 'Enquadramento por fazer',
-      detail: this.selected.framed ? 'contorno percorrido com o laser desligado' : 'opcional',
+      title: tr(this.selected.framed ? 'Enquadrado' : 'Enquadramento por fazer'),
+      detail: tr(this.selected.framed ? 'contorno percorrido com o laser desligado' : 'opcional'),
       state: this.selected.framed ? 'ok' : 'optional',
       action: this.selected.framed
         ? undefined
-        : { label: 'Enquadrar', run: () => this.frame(), disabled: !this.laserService.canMove },
+        : { label: tr('Enquadrar'), run: () => this.frame(), disabled: !this.laserService.canMove },
     });
 
     this.manualItems.forEach((item, index) => {
       const done = this.confirmedManual.has(index);
       rows.push({
         id: `manual-${index}`,
-        title: item,
-        detail: done ? 'confirmado' : 'tocar para confirmar',
+        title: tr(item),
+        detail: tr(done ? 'confirmado' : 'tocar para confirmar'),
         state: done ? 'ok' : 'warn',
         manual: true,
       });
@@ -139,10 +141,11 @@ export class LaserPrepareComponent implements OnInit, OnDestroy {
   }
 
   public get slideLabel(): string {
-    if (this.starting) return 'A iniciar…';
-    return this.warnings
-      ? `Iniciar mesmo assim · ${this.warnings} aviso${this.warnings > 1 ? 's' : ''}`
-      : 'Deslizar para iniciar';
+    if (this.starting) return tr('A iniciar…');
+    if (!this.warnings) return tr('Deslizar para iniciar');
+    return tr(this.warnings > 1 ? 'Iniciar mesmo assim · {n} avisos' : 'Iniciar mesmo assim · {n} aviso', {
+      n: this.warnings,
+    });
   }
 
   public get summary(): string {
@@ -150,7 +153,7 @@ export class LaserPrepareComponent implements OnInit, OnDestroy {
     if (!p) return '';
     const b = p.burnBounds ?? p.moveBounds;
     const size = b ? `${Math.round(b.maxX - b.minX)}×${Math.round(b.maxY - b.minY)} mm` : '';
-    const passes = p.passes > 1 ? ` · ${p.passes} passagens` : '';
+    const passes = p.passes > 1 ? ' · ' + tr('{n} passagens', { n: p.passes }) : '';
     return `${size} · ${formatMinutes(p.estimatedSeconds)}${passes}`;
   }
 

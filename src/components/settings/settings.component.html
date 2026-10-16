@@ -261,6 +261,21 @@
           octodash
         </span>
         <div class="settings__scroll">
+          <span class="settings__heading-2">Language · Idioma</span>
+          <div class="settings__language">
+            <span
+              class="settings__language-option"
+              [class.settings__language-option--active]="(config.laser.language ?? 'pt') === 'pt'"
+              (click)="config.laser.language = 'pt'"
+              >Português</span
+            >
+            <span
+              class="settings__language-option"
+              [class.settings__language-option--active]="config.laser.language === 'en'"
+              (click)="config.laser.language = 'en'"
+              >English</span
+            >
+          </div>
           <span class="settings__heading-2" i18n="@@octodash-general">General</span>
           <app-toggle-switch
             class="settings__toggle-switch"

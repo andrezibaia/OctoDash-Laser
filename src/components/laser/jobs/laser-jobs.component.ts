@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { LaserJobFile, LaserStatus } from '../../../model';
 import { ConfigService } from '../../../services/config.service';
 import { LaserService } from '../../../services/laser/laser.service';
+import { tr } from '../../../services/laser/laser-i18n';
 import { LaserJobService, SelectedJob } from '../../../services/laser/laser-job.service';
 import { formatDate, formatMinutes, formatSize } from '../shared/lz-format';
 
@@ -56,7 +57,7 @@ export class LaserJobsComponent implements OnInit, OnDestroy {
       },
       error: err => {
         this.files = [];
-        this.loadError = err?.message ?? 'Erro ao ler os ficheiros';
+        this.loadError = err?.message ?? tr('Erro ao ler os ficheiros');
       },
     });
   }

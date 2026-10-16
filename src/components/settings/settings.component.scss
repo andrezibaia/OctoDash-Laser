@@ -465,3 +465,26 @@
     left: 60vw;
   }
 }
+
+// OctoDash-Laser: dashboard language picker
+.settings__language {
+  display: flex;
+  gap: 2vw;
+  margin: 1.5vh 0 4vh;
+
+  &-option {
+    flex: 1;
+    text-align: center;
+    padding: 2vh 0;
+    border-radius: 1vw;
+    border: 0.3vw solid var(--border);
+    font-size: 0.55rem;
+    opacity: 0.7;
+
+    &--active {
+      border-color: var(--primary);
+      color: var(--primary);
+      opacity: 1;
+    }
+  }
+}

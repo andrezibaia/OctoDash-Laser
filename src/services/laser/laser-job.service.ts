@@ -8,6 +8,7 @@ import { OctoprintFile, OctoprintFolder } from '../../model/octoprint';
 import { ConfigService } from '../config.service';
 import { NotificationService } from '../notification.service';
 import { parseGcode } from './gcode-parser';
+import { tr } from './laser-i18n';
 
 type FileOrFolder = OctoprintFile & OctoprintFolder;
 
@@ -123,7 +124,7 @@ export class LaserJobService {
           this.selected.next({
             ...this.selected.value,
             loading: false,
-            error: err?.message ?? 'Não foi possível ler o ficheiro',
+            error: err?.message ?? tr('Não foi possível ler o ficheiro'),
           });
         }
       });
@@ -156,7 +157,7 @@ export class LaserJobService {
         return true;
       })
       .catch(err => {
-        this.notificationService.error('Não foi possível iniciar o trabalho', err?.message ?? String(err));
+        this.notificationService.error(tr('Não foi possível iniciar o trabalho'), err?.message ?? String(err));
         return false;
       });
   }
@@ -171,7 +172,7 @@ export class LaserJobService {
         this.configService.getHTTPHeaders(),
       )
       .subscribe({
-        error: err => this.notificationService.error('Comando de trabalho falhou', err?.message ?? String(err)),
+        error: err => this.notificationService.error(tr('Comando de trabalho falhou'), err?.message ?? String(err)),
       });
   }
 
