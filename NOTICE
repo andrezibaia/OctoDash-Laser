@@ -12,7 +12,7 @@ Changes made in OctoDash-Laser (starting from OctoDash v2.8.0):
   GRBL lasers via OctoPrint + Better Grbl Support
 - Settings, notifications, standby screen and setup wizard restyled; 3D-printer
   pages and the upstream update check removed
-- Logo derived from the OctoDash logo (laser cut ring); app icon and favicon replaced
+- Logo derived from the OctoDash logo (red laser line with a hot spot along the ring); app icon and favicon replaced
 - Packaging renamed to octodash-laser; install/update/remove scripts adapted
 - test-env/ (OctoPrint + Better Grbl Support + grbl-sim) and
   scripts/check-laser-i18n.py added

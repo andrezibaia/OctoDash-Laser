@@ -1,8 +1,12 @@
 # Changelog
 
+## OctoDash-Laser v2.8.5
+
+- Logo changed to the thin laser line along the ring (variant A)
+
 ## OctoDash-Laser v2.8.4
 
-- New logo (the OctoDash ring cut by a laser), app icon and favicon; logo on the splash screen and in Settings › About
+- New logo (the OctoDash ring cut by a laser, variant B), app icon and favicon; logo on the splash screen and in Settings › About
 
 ## OctoDash-Laser v2.8.3
 
