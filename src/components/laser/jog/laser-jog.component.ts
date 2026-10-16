@@ -50,17 +50,19 @@ export class LaserJogComponent implements OnInit, OnDestroy {
     this.feedMmS = Math.round(laser.jog.feed / 60);
     this.testFireLabel = `${laser.testFire.power}% · ${laser.testFire.durationMs} ms`;
 
-    const up = laser.bed.yAxisUp ? 1 : -1;
+    const invert = this.configService.getCurrentConfig().octodash?.invertAxisControl;
+    const up = (laser.bed.yAxisUp ? 1 : -1) * (invert?.y ? -1 : 1);
+    const r = invert?.x ? -1 : 1;
     this.pad = [
-      { dx: -1, dy: up, icon: 'ul', diagonal: true },
+      { dx: -r, dy: up, icon: 'ul', diagonal: true },
       { dx: 0, dy: up, icon: 'up', diagonal: false },
-      { dx: 1, dy: up, icon: 'ur', diagonal: true },
-      { dx: -1, dy: 0, icon: 'left', diagonal: false },
+      { dx: r, dy: up, icon: 'ur', diagonal: true },
+      { dx: -r, dy: 0, icon: 'left', diagonal: false },
       null,
-      { dx: 1, dy: 0, icon: 'right', diagonal: false },
-      { dx: -1, dy: -up, icon: 'dl', diagonal: true },
+      { dx: r, dy: 0, icon: 'right', diagonal: false },
+      { dx: -r, dy: -up, icon: 'dl', diagonal: true },
       { dx: 0, dy: -up, icon: 'down', diagonal: false },
-      { dx: 1, dy: -up, icon: 'dr', diagonal: true },
+      { dx: r, dy: -up, icon: 'dr', diagonal: true },
     ];
   }
 

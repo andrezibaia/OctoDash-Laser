@@ -15,10 +15,11 @@ o dono da porta série; o RayForge continua a enviar trabalhos pelo driver OctoP
 | `/job`         | A trabalhar      | Progresso desenhado no traçado, %, falta/decorrido, Pausa (um toque), Parar (manter 1 s). Abre sozinho quando um trabalho começa (também se vier do RayForge).                               |
 | `/camera`      | Câmara           | Imagem ao vivo + Mover / Origem aqui.                                                                                                                                                        |
 | `/more`        | Mais             | Ir à origem, Desbloquear, Definições, botões personalizados, recarregar, reiniciar OctoPrint, desligar (duplo toque).                                                                        |
+| `/settings`    | Definições       | Máquina, Movimento, Laser, Câmara, Ecrã (idioma PT/EN), Ligação, Sobre — só opções do laser, números com botões ±.                                                                           |
 
 Configuração nova em `laser` (ver `src/helper/config.schema.json`): `bed` (300×200, origem, eixo Y),
 `jog` (velocidade mm/min, passos, máximo contínuo), `testFire` (% e ms), `maxPower` ($30),
-`rapidFeed`, `camera.url`, `checklist` (itens manuais).
+`rapidFeed`, `camera.url`, `checklist` (itens manuais), `language` (`pt`/`en`).
 
 ## Decisões técnicas importantes
 
@@ -41,19 +42,19 @@ docker run --rm -v "$PWD:/app" -w /app -e HOME=/tmp -u $(id -u):$(id -g) node:22
            npx electron-builder build -l deb --arm64 --armv7l"
 ```
 
-Pacotes em `package/` (`octodash-laser_2.8.0_arm64.deb`, `_armv7l.deb`). Instala em
+Pacotes em `package/` (`octodash-laser_<versão>_arm64.deb`, `_armv7l.deb`). Instala em
 `/opt/OctoDash-Laser/octodash-laser`; config em `~/.config/octodash-laser/config.json`.
 
 ## Testar sem a máquina
 
-`../test-env/` tem OctoPrint 1.11 + Better Grbl Support + grbl-sim (GRBL 1.1h) num contentor:
+`test-env/` tem OctoPrint 1.11 + Better Grbl Support + grbl-sim (GRBL 1.1h) num contentor:
 
 ```bash
-cd ../test-env && docker build -t odl-testenv . && \
+cd test-env && docker build -t odl-testenv . && \
 docker run -d --name odl-octoprint -p 127.0.0.1:5080:5000 odl-testenv && sleep 60 && ./connect.sh
 ```
 
-API key de teste `ODLTESTKEY0123456789ABCDEFGHIJKL`. Para abrir a app num browser, servir `dist/en`
+API key de teste em `test-env/connect.sh`. Para abrir a app num browser, servir `dist/en`
 (o modo browser guarda a config em `localStorage`). `connect.sh` esvazia o `afterPrinterConnected`
 (ver nota abaixo); `relay.py` dá ao simulador tempo para responder antes/depois de um reset.
 

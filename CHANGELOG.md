@@ -1,5 +1,27 @@
 # Changelog
 
+## OctoDash-Laser v2.8.3
+
+- Settings: "Invert arrows" now applies to the jog pad; removed options that had no effect on the laser screens
+- Translations follow the selected language on screens created before the config loads (notifications)
+- Install / update / remove scripts point to this repository; Better Grbl Support offered during install
+
+## OctoDash-Laser v2.8.2
+
+- Laser settings screen (machine, motion, laser, camera, screen, connection, about)
+- No upstream OctoDash update check; restyled notifications, standby screen and setup wizard
+
+## OctoDash-Laser v2.8.1
+
+- English / Portuguese UI, switchable in the settings
+
+## OctoDash-Laser v2.8.0
+
+- First release: main screen (bed map / camera), jog (steps + continuous), jobs, before-you-start checklist,
+  running screen, alarms, more — on OctoPrint + Better Grbl Support
+
+---
+
 ## [v2.8.0](https://github.com/UnchartedBull/OctoDash/tree/v2.8.0) (2026-06-20)
 
 This is a fairly small release with a few minor features and some bug fixes

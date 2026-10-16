@@ -299,19 +299,6 @@
           </div>
           <div class="row">
             <div class="row__label">
-              {{ 'Ecrã tátil' | lzt }}<small>{{ 'esconde o cursor do rato' | lzt }}</small>
-            </div>
-            <div class="toggles">
-              <button
-                class="toggle toggle--wide"
-                [class.toggle--on]="config.octodash.touchscreen"
-                (click)="config.octodash.touchscreen = !config.octodash.touchscreen">
-                {{ (config.octodash.touchscreen ? 'Ligado' : 'Desligado') | lzt }}
-              </button>
-            </div>
-          </div>
-          <div class="row">
-            <div class="row__label">
               {{ 'Apagar ecrã em repouso' | lzt }}<small>{{ 'quando o OctoPrint fica sem ligação' | lzt }}</small>
             </div>
             <div class="toggles">
@@ -323,20 +310,7 @@
               </button>
             </div>
           </div>
-          <ng-container
-            *ngTemplateOutlet="
-              stepper;
-              context: {
-                obj: config.octodash,
-                key: 'pollingInterval',
-                label: 'Atualização de dados',
-                hint: 'intervalo entre leituras',
-                unit: 'ms',
-                step: 500,
-                min: 500,
-                max: 10000,
-              }
-            "></ng-container>
+
           <div class="group">{{ 'Avançado' | lzt }}</div>
           <div class="row row--stack">
             <div class="row__label">{{ 'Comando para apagar o ecrã' | lzt }}</div>

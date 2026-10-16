@@ -669,22 +669,32 @@ text_input() {
 
 if [ ! -f "/etc/debian_version" ]; then
    echo ""
-   echo "OctoDash is only compatible with Debian-based Linux installations!"
+   echo "OctoDash-Laser is only compatible with Debian-based Linux installations!"
    echo ""
+   exit 1
 fi
 
+REPO="andrezibaia/OctoDash-Laser"
 arch=$(dpkg --print-architecture)
 if  [[ $arch == armhf ]]; then
-  releaseURL=$(curl -s "https://api.github.com/repos/UnchartedBull/OctoDash/releases/latest" | grep "browser_download_url.*armv7l.deb" | cut -d '"' -f 4)
+  pattern="armv7l.deb"
 elif [[ $arch == arm64 ]]; then
-  releaseURL=$(curl -s "https://api.github.com/repos/UnchartedBull/OctoDash/releases/latest" | grep "browser_download_url.*arm64.deb" | cut -d '"' -f 4)
+  pattern="arm64.deb"
 elif [[ $arch == amd64 ]]; then
-  releaseURL=$(curl -s "https://api.github.com/repos/UnchartedBull/OctoDash/releases/latest" | grep "browser_download_url.*amd64.deb" | cut -d '"' -f 4)
+  pattern="amd64.deb"
+else
+  echo "Unsupported architecture: $arch"
+  exit 1
+fi
+releaseURL=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | grep "browser_download_url.*$pattern" | cut -d '"' -f 4)
+if [ -z "$releaseURL" ]; then
+  echo "No OctoDash-Laser release found for $arch at https://github.com/$REPO/releases"
+  exit 1
 fi
 dependencies="libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libappindicator3-1 libsecret-1-0 xserver-xorg ratpoison x11-xserver-utils xinit libgtk-3-0 bc desktop-file-utils libavahi-compat-libdnssd1 libpam0g-dev libx11-dev"
 IFS='/' read -ra version <<< "$releaseURL"
 
-echo "Installing OctoDash "${version[7]}, $arch""
+echo "Installing OctoDash-Laser "${version[7]}, $arch""
 
 echo "Installing Dependencies ..."
 {
@@ -692,11 +702,11 @@ echo "Installing Dependencies ..."
   sudo apt -qq install $dependencies -y
 } || {
   echo ""
-  echo "Couldn't install dependenices!"
+  echo "Couldn't install dependencies!"
   echo "Seems like there is something wrong with the package manager 'apt'"
   echo ""
   echo "If the error is similar to: 'E: Repository 'http://raspbian.raspberrypi.org/raspbian buster InRelease' changed its 'Suite' value from 'stable' to 'oldstable''"
-  echo "you can run 'sudo apt update --allow-releaseinfo-change' and then execute the OctoDash installation command again"
+  echo "you can run 'sudo apt update --allow-releaseinfo-change' and then execute the installation command again"
   exit -1
 }
 
@@ -710,37 +720,23 @@ else
     text_input "Please specify OctoPrints full virtualenv path manually (no trailing slash)." DIRECTORY
 fi;
 
-if [ $DIRECTORY == "-" ]; then
-    echo "Not installing any plugins for remote installation. Please make sure to have Display Layer Progress installed."
-elif [ ! -d $DIRECTORY ]; then
+if [ "$DIRECTORY" == "-" ]; then
+    echo "Remote OctoPrint: please make sure Better Grbl Support is installed there."
+elif [ ! -d "$DIRECTORY" ]; then
     echo "Can't find OctoPrint Installation, please run the script again!"
     exit 1
 fi;
 
-if [ $DIRECTORY != "-" ]; then
-  plugins=( 'OctoDash Companion' 'Display Layer Progress' 'Preheat Button' 'Enclosure' 'Print Time Genius')
-  checkbox_input "Which plugins should I install (you can also install them via the Octoprint UI later)?" plugins selected_plugins
-  echo "Installing Plugins..."
+yes_no=( 'yes' 'no' )
 
-  if [[ " ${selected_plugins[@]} " =~ "OctoDash Companion" ]]; then
-      "$DIRECTORY"/bin/pip install -q --disable-pip-version-check "https://github.com/jneilliii/OctoPrint-OctoDashCompanion/archive/master.zip"
-  fi;
-  if [[ " ${selected_plugins[@]} " =~ "Display Layer Progress" ]]; then
-      "$DIRECTORY"/bin/pip install -q --disable-pip-version-check "https://github.com/OllisGit/OctoPrint-DisplayLayerProgress/releases/latest/download/master.zip"
-  fi;
-  if [[ " ${selected_plugins[@]} " =~ "Preheat Button" ]]; then
-      "$DIRECTORY"/bin/pip install -q --disable-pip-version-check "https://github.com/marian42/octoprint-preheat/archive/master.zip"
-  fi;
-  if [[ " ${selected_plugins[@]} " =~ "Enclosure" ]]; then
-      "$DIRECTORY"/bin/pip install -q --disable-pip-version-check "https://github.com/vitormhenrique/OctoPrint-Enclosure/archive/master.zip"
-  fi;
-  if [[ " ${selected_plugins[@]} " =~ "Print Time Genius" ]]; then
-      "$DIRECTORY"/bin/pip install -q --disable-pip-version-check "https://github.com/eyal0/OctoPrint-PrintTimeGenius/archive/master.zip"
-  fi;
-fi;
+if [ "$DIRECTORY" != "-" ]; then
+  if ! "$DIRECTORY"/bin/pip show -q octoprint-bettergrblsupport >/dev/null 2>&1; then
+    list_input "OctoDash-Laser needs the Better Grbl Support plugin. Install it now?" yes_no install_bgs
+    if [ $install_bgs == 'yes' ]; then
+      "$DIRECTORY"/bin/pip install -q --disable-pip-version-check "https://github.com/synman/Octoprint-Bettergrblsupport/archive/master.zip"
+    fi
+  fi
 
-
-if [ $DIRECTORY == "-" ]; then
   if "$DIRECTORY"/bin/octoprint config get --yaml "api.allowCrossOrigin" | grep -q 'false'; then
     echo "Enabling CORS in OctoPrint..."
     "$DIRECTORY"/bin/octoprint config set --bool "api.allowCrossOrigin" true
@@ -749,21 +745,20 @@ else
   echo "Note: please make sure to enable CORS in OctoPrint (Settings > API > CORS > Allow CORS)."
 fi;
 
-echo "Installing OctoDash "${version[7]}, $arch" ..."
+echo "Installing OctoDash-Laser "${version[7]}, $arch" ..."
 cd ~
-wget -O octodash.deb $releaseURL -q --show-progress
+wget -O octodash-laser.deb $releaseURL -q --show-progress
 
-sudo dpkg -i octodash.deb
+sudo apt install -y ./octodash-laser.deb
 
-rm octodash.deb
+rm octodash-laser.deb
 
-yes_no=( 'yes' 'no' )
-
-list_input "Should I setup OctoDash to automatically start on boot?" yes_no auto_start
+list_input "Should I setup OctoDash-Laser to automatically start on boot?" yes_no auto_start
 
 echo $auto_start
 if [ $auto_start == 'yes' ]; then
     echo "Setting up Autostart ..."
+    [ -f ~/.xinitrc ] && cp ~/.xinitrc ~/.xinitrc.before-octodash-laser
     cat <<EOF > ~/.xinitrc
 #!/bin/sh
 
@@ -772,14 +767,16 @@ xset s noblank
 xset -dpms
 
 ratpoison&
-octodash --no-sandbox
+octodash-laser --no-sandbox
 EOF
 
+    if ! grep -q "xinit -- -nocursor" ~/.bashrc; then
     cat <<EOF >> ~/.bashrc
 if [ -z "\$SSH_CLIENT" ] || [ -z "\$SSH_TTY" ]; then
     xinit -- -nocursor
 fi
 EOF
+    fi
 
     cat <<EOF >> ~/.ratpoisonrc
 startup_message off
@@ -801,30 +798,11 @@ EOF
     sudo chmod +x ~/.xinitrc
     sudo chmod ug+s /usr/lib/xorg/Xorg
 
-    echo "OctoDash will start automatically on next reboot. Please ensure that auto-login is enabled!"
+    echo "OctoDash-Laser will start automatically on next reboot. Please ensure that auto-login is enabled!"
 fi
-
-list_input "Should I setup the update script? This will allow installing '~/tmp/octodash.deb' without sudo or root access. For more info visit the Update section of the wiki. " yes_no update
-if [ $update == 'yes' ]; then
-    mkdir -p ~/scripts
-    echo "Setting up update script ..."
-    cat <<EOF > ~/scripts/update-octodash
-#!/bin/bash
-
-dpkg -i /tmp/octodash.deb
-rm /tmp/octodash.deb
-EOF
-
-    sudo chmod +x ~/scripts/update-octodash
-
-    sudo bash -c 'cat >> /etc/sudoers.d/update-octodash' <<EOF
-$USER ALL=NOPASSWD: $HOME/scripts/update-octodash
-EOF
-fi
-
 
 list_input "Shall I reboot your Pi now?" yes_no reboot
-echo "OctoDash has been successfully installed! :)"
+echo "OctoDash-Laser has been successfully installed! :)"
 if [ $reboot == 'yes' ]; then
     sudo reboot
 fi

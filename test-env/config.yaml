@@ -1,0 +1,20 @@
+api:
+  allowCrossOrigin: true
+server:
+  firstRun: false
+  onlineCheck:
+    enabled: false
+  pluginBlacklist:
+    enabled: false
+serial:
+  port: /tmp/ttyGRBL
+  baudrate: 115200
+  log: true
+  autoconnect: true
+  additionalPorts:
+    - /tmp/ttyGRBL
+plugins:
+  tracking:
+    enabled: false
+  announcements:
+    enabled_channels: []

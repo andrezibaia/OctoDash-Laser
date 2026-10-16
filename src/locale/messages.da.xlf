@@ -488,10 +488,6 @@
         <source>Babystep Z</source>
         <target>Babystep Z</target>
       </trans-unit>
-      <trans-unit id="tap-close" datatype="html">
-        <source>tap this card to close it</source>
-        <target>tryk på dette kort for at lukke det</target>
-      </trans-unit>
       <trans-unit id="reset-confirmation" datatype="html">
         <source>Are you sure you want to reset the configuration?</source>
         <target>Er du sikker på at du vil nulstille konfigurationen?</target>
@@ -978,12 +974,11 @@
         <target>Bekræft venligst anmodningen via pop op-vinduet i OctoPrint WebUI.</target>
       </trans-unit>
       <trans-unit id="prompt-customization-details" datatype="html">
-        <source>Now tell me some facts about your setup so I can personalize OctoDash for you.</source>
+        <source>Now tell me some facts about your setup so I can personalize OctoDash-Laser for you.</source>
         <target>Fortæl mig nu nogle fakta om din opsætning, så jeg kan tilpasse OctoDash til dig.</target>
       </trans-unit>
-      <trans-unit id="prompt-printer-name" datatype="html">
-        <source>Printer Name:</source>
-        <target>Printerens navn:</target>
+      <trans-unit id="prompt-machine-name" datatype="html">
+        <source>Machine Name:</source>
       </trans-unit>
       <trans-unit id="use-touchscreen" datatype="html">
         <source>Use Touchscreen</source>
@@ -1090,7 +1085,7 @@
         <target>0 Unknown Error - Dette betyder højst sandsynligt, at din OctoPrint-host og -port ikke er korrekte.</target>
       </trans-unit>
       <trans-unit id="welcome-1" datatype="html">
-        <source> It looks like this is the first start of OctoDash. </source>
+        <source> It looks like this is the first start of OctoDash-Laser. </source>
         <target> Det ser ud til, at dette er den første start af OctoDash. </target>
       </trans-unit>
       <trans-unit id="welcome-2" datatype="html">
@@ -1114,7 +1109,7 @@
         <target> Vi har udgivet en opdatering, så god, vi var nødt til at ændre konfigurationen. Gennemgå venligst din nye konfiguration! </target>
       </trans-unit>
       <trans-unit id="welcome-7" datatype="html">
-        <source> Thanks for choosing OctoDash </source>
+        <source> Thanks for using OctoDash-Laser </source>
         <target> Tak, fordi du valgte OctoDash </target>
       </trans-unit>
       <trans-unit id="ui-back" datatype="html">
@@ -1124,22 +1119,6 @@
       <trans-unit id="ui-next" datatype="html">
         <source>next</source>
         <target>næste</target>
-      </trans-unit>
-      <trans-unit id="octoprint-sleeping" datatype="html">
-        <source>Shhh! OctoDash is sleeping.</source>
-        <target>Shhh! OctoDash sover.</target>
-      </trans-unit>
-      <trans-unit id="octoprint-sleeping-message" datatype="html">
-        <source>Tap the screen to wake me up again.</source>
-        <target>Tryk på skærmen for at vække mig igen.</target>
-      </trans-unit>
-      <trans-unit id="connecting" datatype="html">
-        <source>connecting</source>
-        <target>forbinder</target>
-      </trans-unit>
-      <trans-unit id="connection-failed" datatype="html">
-        <source> Connection can't be established. Press screen to try again. </source>
-        <target> Forbindelsen kan ikke etableres. Tryk på skærmen for at prøve igen. </target>
       </trans-unit>
       <trans-unit id="downloading-update" datatype="html">
         <source>downloading update</source>

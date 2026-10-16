@@ -1,0 +1,20 @@
+OctoDash-Laser
+Copyright 2026 André Zibaia
+
+This product is a modified version of OctoDash
+(https://github.com/UnchartedBull/OctoDash), Copyright Timon Gaebelein and
+contributors, licensed under the Apache License, Version 2.0 (see LICENSE.md).
+
+Changes made in OctoDash-Laser (starting from OctoDash v2.8.0):
+- New laser screens, services and design system: src/components/laser/,
+  src/services/laser/, src/model/laser.model.ts, src/laser.scss
+- Routing, configuration schema/defaults, socket and config services adapted for
+  GRBL lasers via OctoPrint + Better Grbl Support
+- Settings, notifications, standby screen and setup wizard restyled; 3D-printer
+  pages and the upstream update check removed
+- Packaging renamed to octodash-laser; install/update/remove scripts adapted
+- test-env/ (OctoPrint + Better Grbl Support + grbl-sim) and
+  scripts/check-laser-i18n.py added
+
+Bundled fonts Barlow, Barlow Condensed and JetBrains Mono are licensed under
+the SIL Open Font License 1.1 (src/assets/fonts/OFL-*.txt).

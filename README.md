@@ -1,113 +1,176 @@
 <p align="center">
-    <img width="300" height="300" src="./src/assets/icon/icon-main-dark-title.svg">
-    <br><br>
-    <img src="https://img.shields.io/github/actions/workflow/status/UnchartedBull/OctoDash/build.yaml?style=for-the-badge">
-    <img src="https://img.shields.io/codefactor/grade/github/UnchartedBull/OctoDash/main?style=for-the-badge">
-    <img src="https://img.shields.io/github/v/release/UnchartedBull/OctoDash?style=for-the-badge&label=Latest">
-    <img src="https://img.shields.io/github/downloads/UnchartedBull/OctoDash/latest/total?color=lightgrey&style=for-the-badge">
-    <br>
-    <b>OctoDash is a simple, but beautiful dashboard for OctoPrint. Please read the instructions carefully!</b><br />
-    OctoDash is a User Interface for OctoPrint, it utilizes the OctoPrint API but tries to use modern design principles in order to fully enable the power of your Raspberry Pi attached to your 3D Printer. OctoDash works best with a Touchscreen and will support almost all functions that OctoPrint offers just in a nicer format. Give it a try!
+  <img src="./screenshots/02-home-ready.png" width="640" alt="OctoDash-Laser main screen">
 </p>
 
-## Table of Contents
+<h1 align="center">OctoDash-Laser</h1>
 
-- [Table of Contents](#table-of-contents)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Update](#update)
-- [Tips and Tricks](#tips-and-tricks)
-- [Demo](#demo)
-- [Screenshots](#screenshots)
-- [Get in contact](#get-in-contact)
-- [Troubleshooting](#troubleshooting)
-- [Bugs and more](#bugs-and-more)
-- [Contributing](#contributing)
-- [License](#license)
+<p align="center">
+  <b>A touchscreen dashboard for GRBL laser engravers running on OctoPrint.</b><br>
+  Fork of <a href="https://github.com/UnchartedBull/OctoDash">OctoDash</a> 2.8.0, redesigned for lasers (K40-class CO₂ and diode machines).
+</p>
 
-## Requirements
+---
 
-- OctoPrint 1.9.0 or higher
-- A Debian-based Linux installation
-  - OctoPi recommended
-  - OctoDash may be installed on the same device OctoPrint is running from
-- A 16:9, 16:10 or 4:3 screen in landscape orientation
-  - Touchscreen recommended
+OctoDash is a beautiful touch UI for OctoPrint, but it is built around 3D printers: temperatures, filament,
+extruders, layers. OctoDash-Laser keeps OctoDash's foundation (Electron app, OctoPrint API/socket, setup wizard,
+screen sleep) and replaces every screen with a laser workflow designed for a 7" 800×480 display next to the
+machine: see where the head is, jog it, frame the job, run a short pre-flight checklist, start, pause and stop.
 
-## Installation
+It talks to GRBL through **OctoPrint + [Better Grbl Support](https://github.com/synman/Octoprint-Bettergrblsupport)**.
+OctoPrint owns the serial port, so jobs can still be sent from a desktop app (LightBurn, RayForge, LaserGRBL…
+via OctoPrint upload) and the touchscreen follows them automatically.
 
-```
-bash <(wget -qO- https://github.com/UnchartedBull/OctoDash/raw/main/scripts/install.sh)
-```
+## Features
 
-_Execute this command as the user that logs in on the display (usually `pi`) and not as `root` or with `sudo`._ For more options and information have a look at the [wiki](https://github.com/UnchartedBull/OctoDash/wiki/Installation).
+**Main screen**
 
-No Keyboard? [No Problem](https://github.com/UnchartedBull/OctoDash/wiki/Setup#setup-without-keyboard).
+- Live GRBL state (Ready, Running, Paused, Moving, Alarm, Door open, Offline) in a status pill
+- Bed map (to scale, e.g. 300×200 mm) with the laser head, the work origin and the selected job outline
+- Work and machine coordinates
+- One tap swaps the map for a **live camera** (MJPEG, e.g. go2rtc)
+- Alarm, door-open and offline states replace the main button with the fix (Home / Unlock / Connect)
 
-Having issues during the installation? Please have a look at the [Troubleshooting Guide](https://github.com/UnchartedBull/OctoDash/wiki/Troubleshooting) first.
+**Jog**
 
-## Update
+- 8-direction pad with diagonals and step sizes 0.1 / 1 / 10 / 50 mm (configurable)
+- **Continuous jog (∞)**: moves while the button is held and stops when released. It uses short `$J`
+  segments plus the GRBL jog-cancel, so the head stops within one segment even if the cancel is lost
+- Jogging is clamped to the bed when the position is known
+- Set origin here (`G10 L20 X0 Y0`), Go to origin, Home (`$H`), Unlock (`$X`)
+- **Test fire**: press and hold, with configurable power and duration
 
-Updates can be made through the OctoDash UI, by clicking Settings > About > Install \[CurrentVersion\]!
+**Jobs**
 
-Updates can also be made via the command line:
+- G-code files from OctoPrint, newest first
+- Each file is parsed on the device: toolpath preview, size, estimated time (arcs and rapids included) and power range
+- Warning when the job would leave the bed from the current origin
+- **Frame**: traces the job outline with the laser off
 
-```
-bash <(wget -qO- https://github.com/UnchartedBull/OctoDash/raw/main/scripts/update.sh)
-```
+**Before you start**
 
-## Tips and Tricks
+- Checklist: machine idle, job inside the work area, framed, plus your own manual items (lid closed, water
+  flowing, air assist…)
+- It only **warns**, it never blocks (door and interlocks are the firmware's job)
+- **Slide to start**, so a stray touch never starts the laser
 
-- OctoDash supports printing from your Raspberry and from the printers SD card, if configured in OctoPrint (v1.5.0 and up)
-- You can let OctoDash push out and pull in the filament during a filament change, if you setup your feed length correctly (v1.5.0 and up)
-  - You can also use your printers filament change progress, just enable this in the settings (the printer needs to support M600)
-- If you're using FilamentManager add the color (in HEX format) to the end of the name, like "Vendor black (#000000)", this color will then be shown in the filament selection menu
-- You can adjust the look of OctoDash by adjusting the `~/.config/octodash/custom-styles.css` file and adding your own CSS rules (v2.0.0 and up)
-- OctoDash supports .ufp package and PrusaSlicer preview images (v1.5.0 and up)
-  - To get the best results, you should use a square aspect ration, like `256x256`
-- You can also show the thumbnails during print, if you press on the percentage inside the progress ring (v1.5.0 and up)
-- You can press multiple arrows directly after another in the control view. All actions will be executed in series, even if the prior didn't finish
-- The six actions on the right in the control view can be customized. They can either send GCode commands to your printer, restart OctoPrint or your Pi and even open iFrames so you can view your camera
-- You can adjust the temperatures and fan speed in the home screen by pressing on their icons, if you want to set them to zero, just tap the value once (v1.4.1 and up)
-- OctoDash will start in your host's language if it is supported. You can start OctoDash in a different supported language by starting it with `LANG=fr_FR.UTF-8 octodash`. Currently supported languages are: `fr_FR.UTF-8`, english will be used if your requested language isn't available
+**Running**
 
-## Demo
+- Progress drawn on the toolpath, %, time left / elapsed, estimated end time
+- Pause / Resume with one tap ("Pausing… finishing the current move" until GRBL confirms)
+- **Stop: hold for 1 s**
+- Opens automatically when a job starts from anywhere (desktop app, OctoPrint web UI)
+- GRBL alarms explained in plain language, with the next step to take
 
-If you want to see OctoDash in action, here is an awesome video from Nick on [YouTube](https://youtu.be/YI_c-DY6zU4) there is also a video available from Chris Riley, which also shows the installation process on [YouTube](https://youtu.be/kwo3HMBnqC4)
+**More & settings**
+
+- Custom G-code buttons (from the config), reload, restart OctoPrint, shut down (two-tap confirm)
+- Laser-only settings, editable on the touchscreen (± steppers for numbers, so no keyboard is needed for those):
+  - **Machine**: name, bed size, machine origin, Y axis direction
+  - **Motion**: jog speed (mm/s), steps, default step, continuous limit, rapid feed (for estimates), invert arrows
+  - **Laser**: max power (= GRBL `$30`), test-fire power/duration, checklist items
+  - **Camera**: on/off and stream URL with live preview
+  - **Screen**: language, screen off while sleeping, sleep/wake commands
+  - **Connection**: OctoPrint URL and API key
+  - **About**: version, reset configuration
+
+**Other**
+
+- **English and Portuguese** UI, switchable in Settings › Screen
+- Notifications, standby screen and setup wizard restyled; 3D-printer pages removed
+- No update prompt pointing to the original OctoDash (it would install the 3D-printer version)
 
 ## Screenshots
 
-<p float="left">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/main-screen.png" width="49.5%" alt-text="Main Screen"/>
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/job.png" width="49.5%" alt-text="Job Running">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/control.png" width="49.5%" alt-text="Printer Controls">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/print_controls.png" width="49.5%" alt-text="In Print">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/files_view.png" width="49.5%" alt-text="List Files">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/file_details.png" width="49.5%" alt-text="Details about Files">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/file_loaded.png" width="49.5%" alt-text="Loaded Files">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/filament_selection.png" width="49.5%" alt-text="Settings">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/filament_heating.png" width="49.5%" alt-text="Settings">
-    <img src="https://raw.githubusercontent.com/TimonGaebelein/OctoprintDash/main/screenshots/settings.png" width="49.5%" alt-text="Settings">
-</p>
+|                                                            |                                                            |
+| ---------------------------------------------------------- | ---------------------------------------------------------- |
+| ![Main screen](screenshots/02-home-ready.png)              | ![Alarm on the main screen](screenshots/01-home-alarm.png) |
+| Main screen: bed map, head, origin, selected job           | Alarm: the main button becomes the fix                     |
+| ![Jog](screenshots/03-jog.png)                             | ![Jobs](screenshots/04-jobs.png)                           |
+| Jog: steps or continuous, origin, home, test fire          | Jobs: toolpath preview, size, time, power, frame           |
+| ![Before you start](screenshots/05-prepare.png)            | ![Running](screenshots/06-running.png)                     |
+| Before you start: checklist + slide to start               | Running: progress, time left, pause, hold-to-stop          |
+| ![Paused](screenshots/07-paused.png)                       | ![More](screenshots/08-more.png)                           |
+| Paused                                                     | More: shortcuts, custom actions, system                    |
+| ![Settings – machine](screenshots/09-settings-machine.png) | ![Settings – motion](screenshots/10-settings-motion.png)   |
+| Settings: machine                                          | Settings: motion                                           |
+| ![Settings – laser](screenshots/11-settings-laser.png)     | ![Settings – screen](screenshots/12-settings-screen.png)   |
+| Settings: laser and checklist                              | Settings: language and screen                              |
+| ![Portuguese UI](screenshots/13-home-pt.png)               |                                                            |
+| Portuguese UI                                              |                                                            |
 
-More Screenshots can be found [here](https://github.com/UnchartedBull/OctoDash/tree/main/screenshots).
+Screenshots taken at 800×480 against OctoPrint 1.11 + Better Grbl Support + grbl-sim (GRBL 1.1h firmware).
+The camera view is not shown because the simulator has no camera.
 
-## Get in contact
+## Requirements
 
-We now have a Discord server as well. Feel free to join and ask your support & development questions over there: https://discord.gg/gTasZTz.
+- Raspberry Pi (or another Debian-based Linux machine) with a landscape touchscreen; designed for 800×480, scales to other sizes
+- OctoPrint 1.9+ with the **Better Grbl Support** plugin, connected to a GRBL 1.1 board
+- CORS enabled in OctoPrint (Settings › API › Allow CORS)
+- Optional: an MJPEG camera stream (e.g. [go2rtc](https://github.com/AlexxIT/go2rtc) `/api/stream.mjpeg?src=…`)
 
-## Troubleshooting
+## Installation
 
-If you encounter an issue, while using OctoDash please have a look at the [wiki](https://github.com/UnchartedBull/OctoDash/wiki/Troubleshooting) first! If your issue is not covered please open an issue!
+Run as the user that logs in on the display (usually `pi`), not as root:
 
-## Bugs and more
+```bash
+bash <(wget -qO- https://github.com/andrezibaia/OctoDash-Laser/raw/main/scripts/install.sh)
+```
 
-If you find a bug, please open an issue, so I can have a look at it. Please also add the steps to reproduce and the .gcode file (if applicable). Thank you!
+The installer downloads the latest release for your architecture (`arm64`, `armv7l` or `amd64`) and installs its
+dependencies. It offers to install Better Grbl Support, enables CORS and can set up autostart (X + ratpoison).
+A downloaded package can also be installed by hand:
 
-## Contributing
+```bash
+sudo apt install ./octodash-laser_<version>_arm64.deb
+```
 
-See [CONTRIBUTING.md](https://github.com/UnchartedBull/OctoDash/blob/main/CONTRIBUTING.md).
+The app lives in `/opt/OctoDash-Laser/octodash-laser`; the config is `~/.config/octodash-laser/config.json`.
+On first start the setup wizard asks for the OctoPrint instance, the API key and the machine name.
 
-## License
+Update: `bash <(wget -qO- https://github.com/andrezibaia/OctoDash-Laser/raw/main/scripts/update.sh)`
 
-The project is licensed under the Apache 2.0 License. [More Information](https://github.com/UnchartedBull/OctoDash/blob/main/LICENSE.md).
+### Better Grbl Support notes
+
+- The panel **never sends `$I`, `$G`, `$#` or `$$`**. Better Grbl Support matches replies to requests in
+  order; an extra query desynchronises it, it stops polling `?` and OctoPrint drops the board after ~90 s.
+- If OctoPrint loses the board about 1.5 min after connecting, empty the `afterPrinterConnected` GCODE script
+  in OctoPrint (Better Grbl Support puts an `M999` reset there that can race with its own start-up queries).
+- Set **Max power** in Settings › Laser to your board's `$30` so power percentages are right.
+
+## Building
+
+```bash
+docker run --rm -v "$PWD:/app" -w /app -e HOME=/tmp -u $(id -u):$(id -g) node:22-bookworm \
+  bash -c "npm ci && npm run lint && npx ng build --configuration production && \
+           npx electron-builder build -l deb --arm64 --armv7l"
+```
+
+Packages are written to `package/`. Publishing a GitHub release runs the CI workflow, which builds the `.deb`
+files and attaches them to the release.
+
+`python3 scripts/check-laser-i18n.py` fails if any text on the laser screens is missing an English translation.
+
+### Testing without a machine
+
+`test-env/` runs OctoPrint 1.11 + Better Grbl Support + **grbl-sim** (the real GRBL 1.1h firmware compiled for
+the PC) in Docker:
+
+```bash
+cd test-env && docker build -t odl-testenv . && \
+docker run -d --name odl-octoprint -p 127.0.0.1:5080:5000 odl-testenv && sleep 60 && ./connect.sh
+```
+
+Serve `dist/` and open `/en/index.html` in a browser at 800×480. Outside Electron the app keeps its config in
+`localStorage` (key `octodash-laser-config`); point it at `http://127.0.0.1:5080/` with the test API key from
+`test-env/connect.sh`.
+
+Design notes (in Portuguese): [LEIA-ME.md](LEIA-ME.md).
+
+## Credits & license
+
+OctoDash-Laser is a fork of [OctoDash](https://github.com/UnchartedBull/OctoDash) by Timon Gaebelein
+(UnchartedBull) and contributors, licensed under the [Apache License 2.0](LICENSE.md). See [NOTICE](NOTICE) for
+what was changed. Fonts: Barlow, Barlow Condensed and JetBrains Mono (SIL Open Font License, see `src/assets/fonts/`).
+
+Not affiliated with OctoPrint, OctoDash or Better Grbl Support. Lasers are dangerous: never leave a running laser
+unattended, and do not rely on this UI as a safety device.
