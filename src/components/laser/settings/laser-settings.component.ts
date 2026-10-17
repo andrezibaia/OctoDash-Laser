@@ -6,6 +6,14 @@ import { ConfigSchema as Config } from '../../../model/config.model';
 import { AppService } from '../../../services/app.service';
 import { ConfigService } from '../../../services/config.service';
 import { ElectronService } from '../../../services/electron.service';
+import {
+  BedGeometry,
+  computeGeometry,
+  GrblHoming,
+  HOME_CORNERS,
+  HomeCorner,
+} from '../../../services/laser/bed-geometry';
+import { LaserService } from '../../../services/laser/laser.service';
 import { tr } from '../../../services/laser/laser-i18n';
 import { NotificationService } from '../../../services/notification.service';
 
@@ -40,6 +48,8 @@ export class LaserSettingsComponent implements OnDestroy {
   public saving = false;
   public armed: string = null;
   public version: string;
+  public readonly corners: HomeCorner[] = HOME_CORNERS;
+  public grbl: GrblHoming | null;
 
   private armTimer: ReturnType<typeof setTimeout>;
   private readonly onSaved = () => this.zone.run(() => this.electronService.send('reload'));
@@ -56,11 +66,15 @@ export class LaserSettingsComponent implements OnDestroy {
     private appService: AppService,
     private router: Router,
     private zone: NgZone,
+    private laserService: LaserService,
   ) {
     this.config = cloneDeep(this.configService.getCurrentConfig());
     this.config.laser.language = this.config.laser.language ?? 'pt';
     this.stepsText = this.config.laser.jog.steps.join(' · ');
     this.version = this.appService.getVersion();
+    this.config.laser.bed.homeCorner = this.config.laser.bed.homeCorner ?? 'top-left';
+    this.grbl = this.laserService.grblHomingSettings;
+    this.laserService.refreshGrblSettings();
     this.electronService.on('configSaved', this.onSaved);
     this.electronService.on('configSaveFail', this.onSaveFail);
   }
@@ -69,6 +83,26 @@ export class LaserSettingsComponent implements OnDestroy {
     clearTimeout(this.armTimer);
     this.electronService.removeListener('configSaved', this.onSaved);
     this.electronService.removeListener('configSaveFail', this.onSaveFail);
+  }
+
+  /** Geometry the map and jog would use with the values currently on screen */
+  public get preview(): BedGeometry {
+    return computeGeometry(this.config.laser.bed, this.grbl, this.laserService.learnedHomePosition);
+  }
+
+  public cornerLabel(corner: string): string {
+    const labels: Record<string, string> = {
+      'top-left': 'Atrás à esquerda',
+      'top-right': 'Atrás à direita',
+      'bottom-left': 'À frente à esquerda',
+      'bottom-right': 'À frente à direita',
+    };
+    return tr(labels[corner] ?? labels['top-left']);
+  }
+
+  public fmt(n: number): string {
+    const r = Math.round(n * 10) / 10;
+    return (Number.isInteger(r) ? String(r) : r.toFixed(1)).replace('-', '−');
   }
 
   public get dirty(): boolean {

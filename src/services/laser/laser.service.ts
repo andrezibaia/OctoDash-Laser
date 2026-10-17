@@ -7,9 +7,13 @@ import { Bounds, LaserState, LaserStatus, PrinterState, PrinterStatus, XY } from
 import { ConfigService } from '../config.service';
 import { NotificationService } from '../notification.service';
 import { SocketService } from '../socket/socket.service';
+import { BedGeometry, computeGeometry, GrblHoming, parseGrblSettingsText } from './bed-geometry';
 import { tr } from './laser-i18n';
 
 const BGS_PLUGIN = 'bettergrblsupport';
+const GRBL_HOMING_KEY = 'octodash-laser-grbl-homing';
+const LEARNED_HOME_KEY = 'octodash-laser-learned-home';
+const DEFAULT_BED = { width: 300, height: 200, xMin: 0, yMin: 0, yAxisUp: true, homeCorner: 'top-left', auto: true };
 
 interface BgsGrblState {
   type: string;
@@ -50,6 +54,14 @@ export class LaserService implements OnDestroy {
   private queuedOffset: XY = { x: 0, y: 0 };
   private jogStartPos: XY = null;
 
+  private grblHoming: GrblHoming | null = null;
+  private learnedHome: XY | null = null;
+  private geometrySubject: BehaviorSubject<BedGeometry>;
+  private homingRequestedAt = 0;
+  private positionAtHomingRequest: XY = null;
+  private sawHoming = false;
+  private settingsFetchedFor: PrinterState = null;
+
   public constructor(
     private socketService: SocketService,
     private configService: ConfigService,
@@ -73,13 +85,23 @@ export class LaserService implements OnDestroy {
       updated: 0,
     });
 
+    this.grblHoming = readJson<GrblHoming>(GRBL_HOMING_KEY);
+    this.learnedHome = readJson<XY>(LEARNED_HOME_KEY);
+    this.geometrySubject = new BehaviorSubject<BedGeometry>(this.buildGeometry());
+
     this.subscriptions.add(
       this.socketService.getPrinterStatusSubscribable().subscribe((status: PrinterStatus) => {
         if (!status) return;
         this.printerState = status.status;
+        if (status.status === PrinterState.operational && this.settingsFetchedFor !== PrinterState.operational) {
+          this.refreshGrblSettings();
+        }
+        this.settingsFetchedFor = status.status;
         this.publish({});
       }),
     );
+    // read whatever Better Grbl Support already knows, even before the board connects
+    setTimeout(() => this.refreshGrblSettings(), 1500);
 
     this.subscriptions.add(
       this.socketService.getPluginMessageSubscribable().subscribe(message => {
@@ -96,6 +118,95 @@ export class LaserService implements OnDestroy {
     this.subscriptions.unsubscribe();
     this.stopPolling();
     this.jogStopTimer();
+  }
+
+  //==== Bed geometry ====//
+
+  /** Machine-coordinate bed (range, orientation, home position) used by the map and jog limits. */
+  public getGeometry(): Observable<BedGeometry> {
+    return this.geometrySubject.asObservable();
+  }
+
+  public get geometry(): BedGeometry {
+    // the config may load after this service is created: refresh lazily when it differs
+    const fresh = this.buildGeometry();
+    if (JSON.stringify(fresh) !== JSON.stringify(this.geometrySubject.value)) {
+      this.geometrySubject.next(fresh);
+    }
+    return this.geometrySubject.value;
+  }
+
+  /** Homing settings read from the board ($22/$23/$27/$130/$131), null when unknown */
+  public get grblHomingSettings(): GrblHoming | null {
+    return this.grblHoming;
+  }
+
+  public get learnedHomePosition(): XY | null {
+    return this.learnedHome;
+  }
+
+  private buildGeometry(): BedGeometry {
+    const bed = this.configService.getCurrentConfig()?.laser?.bed ?? DEFAULT_BED;
+    return computeGeometry(bed, this.grblHoming, this.learnedHome);
+  }
+
+  private updateGeometry(): void {
+    this.zone.run(() => this.geometrySubject.next(this.buildGeometry()));
+  }
+
+  /**
+   * Better Grbl Support keeps the board's $$ dump in its plugin settings, so the homing
+   * settings can be read from OctoPrint without sending anything to the board.
+   */
+  public refreshGrblSettings(): void {
+    this.http
+      .get<{
+        plugins?: Record<string, { grblSettingsText?: string }>;
+      }>(this.configService.getApiURL('settings'), this.configService.getHTTPHeaders())
+      .subscribe({
+        next: settings => {
+          const parsed = parseGrblSettingsText(settings?.plugins?.[BGS_PLUGIN]?.grblSettingsText);
+          if (!parsed) return;
+          const changed = JSON.stringify(parsed) !== JSON.stringify(this.grblHoming);
+          if (!changed) return;
+          if (
+            this.grblHoming &&
+            (parsed.dirMask !== this.grblHoming.dirMask || parsed.forceOrigin !== this.grblHoming.forceOrigin)
+          ) {
+            this.learnedHome = null;
+            localStorage.removeItem(LEARNED_HOME_KEY);
+          }
+          this.grblHoming = parsed;
+          localStorage.setItem(GRBL_HOMING_KEY, JSON.stringify(parsed));
+          this.updateGeometry();
+        },
+        error: () => undefined,
+      });
+  }
+
+  /** $H was sent, the head has since moved and is idle again (BGS may not report the Home state) */
+  private homedSinceRequest(mpos: XY): boolean {
+    if (!this.homingRequestedAt) return false;
+    const elapsed = Date.now() - this.homingRequestedAt;
+    if (elapsed < 2000 || elapsed > 120000) return false;
+    const before = this.positionAtHomingRequest;
+    return !before || Math.abs(before.x - mpos.x) > 1 || Math.abs(before.y - mpos.y) > 1;
+  }
+
+  /** Called after a homing cycle finishes: the head is exactly at the home position. */
+  private learnHome(mpos: XY): void {
+    if (!this.grblHoming || !mpos) return;
+    const bed = this.configService.getCurrentConfig()?.laser?.bed ?? DEFAULT_BED;
+    const predicted = computeGeometry(bed, this.grblHoming, null).home;
+    // only trust positions that are plausibly a homed corner (within 15 mm of the computed one)
+    if (Math.abs(mpos.x - predicted.x) > 15 || Math.abs(mpos.y - predicted.y) > 15) {
+      if (!(Math.abs(mpos.x) < 15 && Math.abs(mpos.y) < 15)) return;
+    }
+    const learned = { x: Math.round(mpos.x * 1000) / 1000, y: Math.round(mpos.y * 1000) / 1000 };
+    if (this.learnedHome && this.learnedHome.x === learned.x && this.learnedHome.y === learned.y) return;
+    this.learnedHome = learned;
+    localStorage.setItem(LEARNED_HOME_KEY, JSON.stringify(learned));
+    this.updateGeometry();
   }
 
   //==== Status ====//
@@ -199,6 +310,16 @@ export class LaserService implements OnDestroy {
     ].includes(this.printerState);
     next.pausing = this.printerState === PrinterState.pausing;
     next.state = this.deriveState(next);
+    if (next.state === LaserState.homing) this.sawHoming = true;
+    if (next.state === LaserState.idle && next.mpos && (this.sawHoming || this.homedSinceRequest(next.mpos))) {
+      this.sawHoming = false;
+      this.homingRequestedAt = 0;
+      this.learnHome(next.mpos);
+    }
+    if (next.state === LaserState.alarm) {
+      this.sawHoming = false;
+      this.homingRequestedAt = 0;
+    }
     this.zone.run(() => this.statusSubject.next(next));
 
     if ([LaserState.jogging, LaserState.homing].includes(next.state)) {
@@ -294,6 +415,9 @@ export class LaserService implements OnDestroy {
   }
 
   public home(): void {
+    this.homingRequestedAt = Date.now();
+    this.positionAtHomingRequest = this.snapshot.mpos ? { ...this.snapshot.mpos } : null;
+    this.sawHoming = false;
     this.send(['$H'], 30000);
   }
 
@@ -392,7 +516,7 @@ export class LaserService implements OnDestroy {
       this.continuousJogActive && this.jogStartPos
         ? { x: this.jogStartPos.x + this.queuedOffset.x, y: this.jogStartPos.y + this.queuedOffset.y }
         : live;
-    const bed = this.configService.getLaser().bed;
+    const bed = this.geometry;
     // Never move further out of the bed; moving back towards it is always allowed.
     const limit = (pos: number, delta: number, min: number, size: number) => {
       if (delta < 0) return pos <= min ? 0 : Math.max(delta, min - pos);
@@ -451,7 +575,7 @@ export class LaserService implements OnDestroy {
     if (!bounds) return null;
     const status = this.snapshot;
     if (!status.wcoKnown && !status.mpos) return null;
-    const bed = this.configService.getLaser().bed;
+    const bed = this.geometry;
     const wco = status.wco;
     const eps = 0.001;
     return (
@@ -472,5 +596,14 @@ export class LaserService implements OnDestroy {
     const s = Math.round((laser.testFire.power / 100) * laser.maxPower);
     const feed = (0.1 * 60000) / laser.testFire.durationMs;
     this.send(['G91', `M3 S${s}`, `G1 X0.1 F${feed.toFixed(3)}`, 'M5', 'G90'], 2000);
+  }
+}
+
+function readJson<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
   }
 }

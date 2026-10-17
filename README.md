@@ -70,7 +70,8 @@ via OctoPrint upload) and the touchscreen follows them automatically.
 
 - Custom G-code buttons (from the config), reload, restart OctoPrint, shut down (two-tap confirm)
 - Laser-only settings, editable on the touchscreen (± steppers for numbers, so no keyboard is needed for those):
-  - **Machine**: name, bed size, machine origin, Y axis direction
+  - **Machine**: name, home corner; work area and home position are read from GRBL ($23, $27, $130, $131)
+    via Better Grbl Support (manual values when not available)
   - **Motion**: jog speed (mm/s), steps, default step, continuous limit, rapid feed (for estimates), invert arrows
   - **Laser**: max power (= GRBL `$30`), test-fire power/duration, checklist items
   - **Camera**: on/off and stream URL with live preview

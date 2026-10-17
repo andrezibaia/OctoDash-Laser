@@ -12,7 +12,7 @@ import {
 import { Subscription } from 'rxjs';
 
 import { Bounds, LaserStatus, ParsedGcode, XY } from '../../../model';
-import { ConfigService } from '../../../services/config.service';
+import { BedGeometry } from '../../../services/laser/bed-geometry';
 import { LaserService } from '../../../services/laser/laser.service';
 
 const COLORS = {
@@ -27,6 +27,7 @@ const COLORS = {
   boundsBad: 'rgba(255,74,61,0.95)',
   origin: '#ffad33',
   head: '#62c6f2',
+  home: 'rgba(232,236,240,0.55)',
 };
 
 /**
@@ -40,8 +41,7 @@ const COLORS = {
     <canvas #base class="layer"></canvas>
     <canvas #overlay class="layer"></canvas>
     @if (showLabels) {
-      <span class="lbl lbl--origin lz-mono">{{ originLabel }}</span>
-      <span class="lbl lbl--size lz-mono">{{ sizeLabel }}</span>
+      <span class="lbl lbl--size lz-mono" [class.lbl--left]="homeCorner === 'top-right'">{{ sizeLabel }}</span>
     }
   `,
   styles: [
@@ -66,14 +66,13 @@ const COLORS = {
         color: var(--lz-dim);
         pointer-events: none;
       }
-      .lbl--origin {
-        left: calc(24 * var(--u));
-        bottom: calc(14 * var(--u)) !important;
-        bottom: calc(4 * var(--u));
-      }
       .lbl--size {
         right: calc(6 * var(--u));
         top: calc(4 * var(--u));
+      }
+      .lbl--size.lbl--left {
+        right: auto;
+        left: calc(6 * var(--u));
       }
     `,
   ],
@@ -93,11 +92,13 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   /** When true, the head is drawn at the progress position instead of the live position. */
   @Input() public headFromProgress = false;
 
-  public originLabel = '0,0';
   public sizeLabel = '';
+  public homeCorner = 'top-left';
 
   private status: LaserStatus;
+  private bed: BedGeometry;
   private sub: Subscription;
+  private geoSub: Subscription;
   private resizeObserver: ResizeObserver;
   private width = 0;
   private height = 0;
@@ -113,11 +114,15 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   public constructor(
     private host: ElementRef<HTMLElement>,
     private laserService: LaserService,
-    private configService: ConfigService,
     private zone: NgZone,
   ) {
-    const bed = this.configService.getLaser().bed;
+    this.setGeometry(this.laserService.geometry);
+  }
+
+  private setGeometry(bed: BedGeometry): void {
+    this.bed = bed;
     this.sizeLabel = `${bed.width}×${bed.height}`;
+    this.homeCorner = bed.homeCorner;
   }
 
   public ngAfterViewInit(): void {
@@ -125,6 +130,11 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       const wcoChanged = !this.status || this.status.wco.x !== status.wco.x || this.status.wco.y !== status.wco.y;
       this.status = status;
       if (wcoChanged) this.baseKey = '';
+      this.scheduleDraw();
+    });
+    this.geoSub = this.laserService.getGeometry().subscribe(bed => {
+      this.setGeometry(bed);
+      this.baseKey = '';
       this.scheduleDraw();
     });
     this.zone.runOutsideAngular(() => {
@@ -145,6 +155,7 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   public ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    this.geoSub?.unsubscribe();
     this.resizeObserver?.disconnect();
     if (this.pendingFrame !== null) cancelAnimationFrame(this.pendingFrame);
   }
@@ -175,7 +186,7 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       }
       this.baseKey = '';
     }
-    const bed = this.configService.getLaser().bed;
+    const bed = this.bed;
     const pad = 10;
     this.scale = Math.min((this.width - pad * 2) / bed.width, (this.height - pad * 2) / bed.height);
     this.offsetX = (this.width - bed.width * this.scale) / 2;
@@ -185,9 +196,11 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   /** Machine coordinates → canvas CSS pixels */
   private toScreen(mx: number, my: number): [number, number] {
-    const bed = this.configService.getLaser().bed;
-    const sx = this.offsetX + (mx - bed.xMin) * this.scale;
-    const sy = bed.yAxisUp
+    const bed = this.bed;
+    const sx = bed.xRight
+      ? this.offsetX + (mx - bed.xMin) * this.scale
+      : this.offsetX + (bed.xMin + bed.width - mx) * this.scale;
+    const sy = bed.yUp
       ? this.offsetY + (bed.yMin + bed.height - my) * this.scale
       : this.offsetY + (my - bed.yMin) * this.scale;
     return [sx, sy];
@@ -201,7 +214,7 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private draw(): void {
     if (!this.layout()) return;
-    const key = `${this.width}x${this.height}|${this.wco.x},${this.wco.y}|${this.showProgress}|${this.showTravel}`;
+    const key = `${this.width}x${this.height}|${this.wco.x},${this.wco.y}|${this.showProgress}|${this.showTravel}|${JSON.stringify(this.bed)}`;
     if (key !== this.baseKey) {
       this.baseKey = key;
       this.drawnProgress = -1;
@@ -227,7 +240,7 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private drawBase(): void {
     const ctx = this.baseCtx();
     ctx.clearRect(0, 0, this.width, this.height);
-    const bed = this.configService.getLaser().bed;
+    const bed = this.bed;
 
     // grid every 10 mm, stronger every 50 mm
     ctx.lineWidth = 1;
@@ -304,12 +317,53 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     ctx.stroke();
   }
 
+  /** Home position: small house glyph where the head parks after $H */
+  private drawHome(ctx: CanvasRenderingContext2D): void {
+    const home = this.bed.home;
+    if (!home) return;
+    const [hx, hy] = this.toScreen(home.x, home.y);
+    const s = 7;
+    ctx.save();
+    ctx.strokeStyle = COLORS.home;
+    ctx.fillStyle = 'rgba(232,236,240,0.12)';
+    ctx.lineWidth = 1.6;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(hx - s, hy - 1);
+    ctx.lineTo(hx, hy - s - 2);
+    ctx.lineTo(hx + s, hy - 1);
+    ctx.lineTo(hx + s - 1.5, hy - 1);
+    ctx.lineTo(hx + s - 1.5, hy + s);
+    ctx.lineTo(hx - s + 1.5, hy + s);
+    ctx.lineTo(hx - s + 1.5, hy - 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /** Small mono label placed on the side of (x, y) that points into the bed */
+  private drawLabel(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, color: string): void {
+    const midX = this.offsetX + (this.bed.width * this.scale) / 2;
+    const midY = this.offsetY + (this.bed.height * this.scale) / 2;
+    ctx.save();
+    ctx.font = `500 ${Math.round(Math.max(10, this.scale * 3.4))}px "JetBrains Mono", monospace`;
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.85;
+    ctx.textAlign = x <= midX ? 'left' : 'right';
+    ctx.textBaseline = y <= midY ? 'top' : 'bottom';
+    ctx.fillText(text, x + (x <= midX ? 10 : -10), y + (y <= midY ? 8 : -8));
+    ctx.restore();
+  }
+
   private drawOverlay(): void {
     const ctx = this.overlayCanvas.nativeElement.getContext('2d');
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, this.width, this.height);
 
-    // work origin (diamond)
+    this.drawHome(ctx);
+
+    // work origin (diamond) + "0,0" label next to it, inside the bed
     if (this.status?.wcoKnown || this.status?.mpos) {
       const [ox, oy] = this.toScreen(this.wco.x, this.wco.y);
       ctx.strokeStyle = COLORS.origin;
@@ -321,6 +375,7 @@ export class LzBedMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       ctx.lineTo(ox - 7, oy);
       ctx.closePath();
       ctx.stroke();
+      if (this.showLabels) this.drawLabel(ctx, '0,0', ox, oy, COLORS.origin);
     }
 
     // head (crosshair)

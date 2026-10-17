@@ -1,5 +1,14 @@
 # Changelog
 
+## OctoDash-Laser v2.8.6
+
+- Bed geometry from the board: work area, machine range and home position are computed from the GRBL
+  settings Better Grbl Support stores in OctoPrint ($22/$23/$27/$130/$131), no extra queries to the board.
+  Fixes machines that home to X-/Y- (negative machine coordinates), e.g. a K40 homing at the back left:
+  the map, jog arrows and jog limits were wrong
+- New "Home corner" setting (default: back left); home marker on the bed map; "0,0" label follows the work origin
+- The position after a real homing cycle is remembered and refines the computed home
+
 ## OctoDash-Laser v2.8.5
 
 - Logo changed to the thin laser line along the ring (variant A)

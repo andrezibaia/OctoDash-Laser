@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 
 import { LaserState, LaserStatus } from '../../../model';
 import { ConfigService } from '../../../services/config.service';
+import { BedGeometry } from '../../../services/laser/bed-geometry';
 import { LaserService } from '../../../services/laser/laser.service';
 import { LaserJobService } from '../../../services/laser/laser-job.service';
 import { formatMm } from '../shared/lz-format';
@@ -50,9 +51,14 @@ export class LaserJogComponent implements OnInit, OnDestroy {
     this.feedMmS = Math.round(laser.jog.feed / 60);
     this.testFireLabel = `${laser.testFire.power}% · ${laser.testFire.durationMs} ms`;
 
+    this.buildPad(this.laserService.geometry);
+  }
+
+  /** Arrow → axis direction, from the bed orientation (home corner + GRBL) and "invert arrows" */
+  private buildPad(geometry: BedGeometry): void {
     const invert = this.configService.getCurrentConfig().octodash?.invertAxisControl;
-    const up = (laser.bed.yAxisUp ? 1 : -1) * (invert?.y ? -1 : 1);
-    const r = invert?.x ? -1 : 1;
+    const up = (geometry.yUp ? 1 : -1) * (invert?.y ? -1 : 1);
+    const r = (geometry.xRight ? 1 : -1) * (invert?.x ? -1 : 1);
     this.pad = [
       { dx: -r, dy: up, icon: 'ul', diagonal: true },
       { dx: 0, dy: up, icon: 'up', diagonal: false },
@@ -68,6 +74,7 @@ export class LaserJogComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     this.subs.add(this.laserService.getStatus().subscribe(status => (this.status = status)));
+    this.subs.add(this.laserService.getGeometry().subscribe(geometry => this.buildPad(geometry)));
   }
 
   public ngOnDestroy(): void {

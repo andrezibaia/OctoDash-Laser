@@ -31,78 +31,139 @@
             </div>
             <input class="text" maxlength="20" [(ngModel)]="config.printer.name" />
           </div>
-          <div class="group">{{ 'Área de trabalho' | lzt }}</div>
-          <ng-container
-            *ngTemplateOutlet="
-              stepper;
-              context: {
-                obj: config.laser.bed,
-                key: 'width',
-                label: 'Largura',
-                unit: 'mm',
-                step: 10,
-                min: 10,
-                max: 2000,
-              }
-            "></ng-container>
-          <ng-container
-            *ngTemplateOutlet="
-              stepper;
-              context: {
-                obj: config.laser.bed,
-                key: 'height',
-                label: 'Altura',
-                unit: 'mm',
-                step: 10,
-                min: 10,
-                max: 2000,
-              }
-            "></ng-container>
-          <ng-container
-            *ngTemplateOutlet="
-              stepper;
-              context: {
-                obj: config.laser.bed,
-                key: 'xMin',
-                label: 'X mínimo (máquina)',
-                unit: 'mm',
-                step: 1,
-                min: -2000,
-                max: 2000,
-              }
-            "></ng-container>
-          <ng-container
-            *ngTemplateOutlet="
-              stepper;
-              context: {
-                obj: config.laser.bed,
-                key: 'yMin',
-                label: 'Y mínimo (máquina)',
-                unit: 'mm',
-                step: 1,
-                min: -2000,
-                max: 2000,
-              }
-            "></ng-container>
-          <div class="row">
+          <div class="row row--home">
             <div class="row__label">
-              {{ 'Sentido do eixo Y' | lzt }}<small>{{ 'como a cabeça se move com Y+' | lzt }}</small>
+              {{ 'Canto do Home' | lzt
+              }}<small>{{ 'onde a cabeça fica depois de Home ($H), visto de frente' | lzt }}</small>
             </div>
-            <div class="lz-seg seg">
-              <button
-                class="lz-seg__item"
-                [class.lz-seg__item--on]="config.laser.bed.yAxisUp"
-                (click)="config.laser.bed.yAxisUp = true">
-                {{ 'Y+ para trás' | lzt }}
-              </button>
-              <button
-                class="lz-seg__item"
-                [class.lz-seg__item--on]="!config.laser.bed.yAxisUp"
-                (click)="config.laser.bed.yAxisUp = false">
-                {{ 'Y+ para a frente' | lzt }}
-              </button>
+            <div class="corner-pick" role="radiogroup">
+              @for (c of corners; track c) {
+                <button
+                  class="corner-pick__btn corner-pick__btn--{{ c }}"
+                  [class.corner-pick__btn--on]="(config.laser.bed.homeCorner ?? 'top-left') === c"
+                  [attr.aria-label]="cornerLabel(c)"
+                  (click)="config.laser.bed.homeCorner = c">
+                  <lz-icon name="home" size="sm"></lz-icon>
+                </button>
+              }
+              <span class="corner-pick__name">{{ cornerLabel(config.laser.bed.homeCorner) }}</span>
             </div>
           </div>
+          @if (grbl) {
+            <div class="row">
+              <div class="row__label">
+                {{ 'Área e Home a partir da placa' | lzt
+                }}<small>{{ 'lido do GRBL ($23, $27, $130, $131)' | lzt }}</small>
+              </div>
+              <div class="toggles">
+                <button
+                  class="toggle toggle--wide"
+                  [class.toggle--on]="config.laser.bed.auto !== false"
+                  (click)="config.laser.bed.auto = config.laser.bed.auto === false">
+                  {{ (config.laser.bed.auto !== false ? 'Ligado' : 'Desligado') | lzt }}
+                </button>
+              </div>
+            </div>
+          }
+          @if (preview.source === 'grbl') {
+            <div class="geo">
+              <div class="geo__item">
+                <span class="geo__k">{{ 'Área' | lzt }}</span>
+                <span class="geo__v lz-mono">{{ preview.width }} × {{ preview.height }} mm</span>
+              </div>
+              <div class="geo__item">
+                <span class="geo__k">{{ 'Home (máquina)' | lzt }}</span>
+                <span class="geo__v lz-mono">X {{ fmt(preview.home.x) }} · Y {{ fmt(preview.home.y) }}</span>
+              </div>
+              <div class="geo__item">
+                <span class="geo__k">{{ 'Eixos' | lzt }}</span>
+                <span class="geo__v lz-mono"
+                  >X+ {{ preview.xRight ? '→' : '←' }} · Y+ {{ preview.yUp ? '↑' : '↓' }}</span
+                >
+              </div>
+            </div>
+          } @else {
+            <div class="group">{{ 'Área de trabalho' | lzt }}</div>
+            <ng-container
+              *ngTemplateOutlet="
+                stepper;
+                context: {
+                  obj: config.laser.bed,
+                  key: 'width',
+                  label: 'Largura',
+                  unit: 'mm',
+                  step: 10,
+                  min: 10,
+                  max: 2000,
+                }
+              "></ng-container>
+            <ng-container
+              *ngTemplateOutlet="
+                stepper;
+                context: {
+                  obj: config.laser.bed,
+                  key: 'height',
+                  label: 'Altura',
+                  unit: 'mm',
+                  step: 10,
+                  min: 10,
+                  max: 2000,
+                }
+              "></ng-container>
+            <ng-container
+              *ngTemplateOutlet="
+                stepper;
+                context: {
+                  obj: config.laser.bed,
+                  key: 'xMin',
+                  label: 'X mínimo (máquina)',
+                  unit: 'mm',
+                  step: 1,
+                  min: -2000,
+                  max: 2000,
+                }
+              "></ng-container>
+            <ng-container
+              *ngTemplateOutlet="
+                stepper;
+                context: {
+                  obj: config.laser.bed,
+                  key: 'yMin',
+                  label: 'Y mínimo (máquina)',
+                  unit: 'mm',
+                  step: 1,
+                  min: -2000,
+                  max: 2000,
+                }
+              "></ng-container>
+            <div class="row">
+              <div class="row__label">
+                {{ 'Sentido do eixo Y' | lzt }}<small>{{ 'como a cabeça se move com Y+' | lzt }}</small>
+              </div>
+              <div class="lz-seg seg">
+                <button
+                  class="lz-seg__item"
+                  [class.lz-seg__item--on]="config.laser.bed.yAxisUp"
+                  (click)="config.laser.bed.yAxisUp = true">
+                  {{ 'Y+ para trás' | lzt }}
+                </button>
+                <button
+                  class="lz-seg__item"
+                  [class.lz-seg__item--on]="!config.laser.bed.yAxisUp"
+                  (click)="config.laser.bed.yAxisUp = false">
+                  {{ 'Y+ para a frente' | lzt }}
+                </button>
+              </div>
+            </div>
+            @if (!grbl) {
+              <p class="note">
+                {{
+                  'Ainda não foram lidas as definições do GRBL (o Better GRBL Support guarda-as quando liga à placa). Até lá usam-se estes valores.'
+                    | lzt
+                }}
+              </p>
+            }
+          }
         }
 
         <!-- ============ Movimento ============ -->
